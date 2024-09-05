@@ -1,0 +1,14 @@
+<?php
+
+// In app/Http/Controllers/MessageController.php
+namespace App\Http\Controllers;
+
+use Illuminate\Http\Request;
+
+class MessageController extends Controller
+{
+    public function index()
+    {
+        return view('messages.index'); // Create this view
+    }
+}
