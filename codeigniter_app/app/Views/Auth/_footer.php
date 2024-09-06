@@ -1,6 +1,7 @@
 </main><!-- /.container -->
-
-
+<footer class="bg-light text-center py-3 mt-4">
+    <p>&copy; <?= date('Y') ?> FakeBook. All rights reserved.</p>
+</footer>
 <!-- Bootstrap core JavaScript
 ================================================== -->
 <!-- Placed at the end of the document so the pages load faster -->

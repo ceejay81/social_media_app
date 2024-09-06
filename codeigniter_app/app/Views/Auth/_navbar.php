@@ -1,13 +1,19 @@
 <nav class="navbar navbar-expand-md navbar-dark bg-dark fixed-top">
     <a class="navbar-brand" href="#">Myth:Auth</a>
-    <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarsExampleDefault" aria-controls="navbarsExampleDefault" aria-expanded="false" aria-label="Toggle navigation">
+    <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
         <span class="navbar-toggler-icon"></span>
     </button>
 
-    <div class="collapse navbar-collapse" id="navbarsExampleDefault">
-        <ul class="navbar-nav mr-auto">
+    <div class="collapse navbar-collapse" id="navbarNav">
+        <ul class="navbar-nav">
             <li class="nav-item active">
-                <a class="nav-link" href="#"><?= lang('Auth.home')?> <span class="sr-only">(<?= lang('Auth.current')?>)</span></a>
+                <a class="nav-link" href="<?= base_url('/') ?>"><?= lang('Auth.home') ?> <span class="sr-only">(<?= lang('Auth.current') ?>)</span></a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" href="<?= base_url('explore') ?>"><?= lang('Auth.explore') ?></a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" href="<?= base_url('messages') ?>"><?= lang('Auth.messages') ?></a>
             </li>
         </ul>
     </div>

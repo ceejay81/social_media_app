@@ -7,15 +7,12 @@
     <meta name="author" content="">
     <link rel="icon" href="../../../../favicon.ico">
 
-    <title>Myth:Auth</title>
+    <title>FakeBook</title>
 
     <!-- Bootstrap core CSS -->
-	<link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css" integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
-    <style>
-        body {
-            padding-top: 5rem;
-        }
-    </style>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css" integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
+    
+    <!-- Custom styles -->
 
     <?= $this->renderSection('pageStyles') ?>
 </head>
@@ -23,11 +20,13 @@
 <body>
 
 <?= view('App\Views\Auth\_navbar') ?>
+<?= view('App\Views\Auth\_header') ?>
 
 <main role="main" class="container">
-	<?= $this->renderSection('main') ?>
+    <?= $this->renderSection('main') ?>
 </main><!-- /.container -->
 
+<?= view('App\Views\Auth\_footer') ?>
 
 <!-- Bootstrap core JavaScript
 ================================================== -->

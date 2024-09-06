@@ -1,11 +1,18 @@
 <?php
-
 namespace App\Controllers;
 
-class Home extends BaseController
+use CodeIgniter\Controller;
+
+class HomeController extends Controller
 {
-    public function index(): string
+    public function dashboard()
     {
-        return view('welcome_message');
+        // Make sure user is logged in
+        if (!session()->get('logged_in')) {
+            return redirect()->to('login');
+        }
+
+        // Load the dashboard view
+        return view('dashboard');
     }
 }
