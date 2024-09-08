@@ -31,8 +31,10 @@
 
         <!-- User Profile -->
         <div class="relative">
-            <button id="user-menu-button" aria-expanded="false" aria-haspopup="true">
-            <img src="{{ asset(auth()->user()->profile_picture_url) }}" alt="User" class="w-8 h-8 rounded-full">
+            <button id="user-menu-button" aria-expanded="false" aria-haspopup="true" class="flex items-center">
+                <img src="{{ auth()->user()->profile_picture_url ? asset('storage/' . auth()->user()->profile_picture_url) : asset('images/default-avatar.jpg') }}" 
+                     alt="{{ auth()->user()->name }}" 
+                     class="w-8 h-8 rounded-full object-cover">
             </button>
             <div id="user-menu" class="absolute right-0 mt-2 w-48 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg shadow-lg hidden">
                 <ul class="py-1">

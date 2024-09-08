@@ -44,4 +44,9 @@ class AuthenticatedSessionController extends Controller
 
         return redirect('/');
     }
+
+    protected function redirectTo()
+    {
+        return route('dashboard');
+    }
 }

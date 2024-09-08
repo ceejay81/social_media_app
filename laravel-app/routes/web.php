@@ -11,6 +11,7 @@ use App\Http\Controllers\HelpController;
 use App\Http\Controllers\FeedbackController;
 use App\Http\Controllers\SettingsController;
 use App\Http\Controllers\DashboardController;
+use App\Http\Controllers\CommentController;
 
 use Illuminate\Support\Facades\Route;
 
@@ -22,7 +23,7 @@ Route::get('/', function () {
 // Authenticated Routes
 Route::middleware(['auth'])->group(function () {
     // Dashboard
-    Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
+    Route::get('/dashboard', [HomeController::class, 'index'])->name('dashboard');
 
     // Profile Management
     Route::get('/profile/{user}', [ProfileController::class, 'show'])->name('profile.show');
@@ -62,6 +63,9 @@ Route::middleware(['auth'])->group(function () {
 
     // Logout
     Route::post('/logout', [\App\Http\Controllers\Auth\AuthenticatedSessionController::class, 'destroy'])->name('logout');
+
+    // Comments
+    Route::post('/posts/{post}/comments', [CommentController::class, 'store'])->name('comments.store');
 });
 
 require __DIR__.'/auth.php';

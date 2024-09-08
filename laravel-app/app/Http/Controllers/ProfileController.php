@@ -28,36 +28,32 @@ class ProfileController extends Controller
 
     public function update(Request $request, User $user)
     {
-        // Only allow updating the profile of the logged-in user or the profile that exists
-        if ($user->id !== Auth::id() && !Auth::user()->is_admin) {
-            abort(403, 'Unauthorized action.');
-        }
-
         $request->validate([
             'name' => 'required|string|max:255',
             'email' => 'required|string|email|max:255|unique:users,email,' . $user->id,
             'profile_picture' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
+            'background_picture' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
+            'bio' => 'nullable|string|max:500',
         ]);
 
-        $user->name = $request->input('name');
-        $user->email = $request->input('email');
+        $user->name = $request->name;
+        $user->email = $request->email;
+        $user->bio = $request->bio;
 
-        // Handle profile picture upload
         if ($request->hasFile('profile_picture')) {
             $profilePicture = $request->file('profile_picture');
-            
-            // Generate a unique filename
-            $filename = time() . '_' . $profilePicture->getClientOriginalName();
-            
-            // Save the file to the public/profile_pictures directory
-            $profilePicture->move(public_path('profile_pictures'), $filename);
-            
-            // Update the user's profile picture URL
-            $user->profile_picture_url = 'profile_pictures/' . $filename;
+            $profilePicturePath = $profilePicture->store('profile_pictures', 'public');
+            $user->profile_picture_url = $profilePicturePath; // This should be like 'profile_pictures/filename.jpg'
+        }
+
+        if ($request->hasFile('background_picture')) {
+            $backgroundPicture = $request->file('background_picture');
+            $backgroundPicturePath = $backgroundPicture->store('background_pictures', 'public');
+            $user->background_picture_url = $backgroundPicturePath; // This should be like 'background_pictures/filename.jpg'
         }
 
         $user->save();
 
-        return redirect()->route('profile.show', $user)->with('status', 'Profile updated!');
+        return redirect()->route('profile.show', $user)->with('success', 'Profile updated successfully');
     }
 }

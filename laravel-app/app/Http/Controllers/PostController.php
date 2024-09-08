@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use App\Models\Post;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Storage;
 
 class PostController extends Controller
 {
@@ -16,16 +17,13 @@ class PostController extends Controller
     // Store a newly created post in the database
     public function store(Request $request)
     {
-        $request->validate([
-            'title' => 'required|string|max:255',
-            'content' => 'required|string',
-            'image' => 'nullable|image|mimes:jpeg,png,jpg|max:2048', // optional image validation
+        $validatedData = $request->validate([
+            'content' => 'required|max:1000',
+            'image' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
         ]);
 
-        $post = new Post();
-        $post->title = $request->input('title');
-        $post->content = $request->input('content');
-        $post->user_id = Auth::id(); // Assign the logged-in user as the author
+        $post = new Post($validatedData);
+        $post->user_id = auth()->id();
 
         if ($request->hasFile('image')) {
             $imagePath = $request->file('image')->store('posts', 'public');
@@ -64,5 +62,38 @@ class PostController extends Controller
         $user->savedPosts()->attach($post);
 
         return redirect()->route('posts.saved')->with('success', 'Post saved successfully!');
+    }
+
+    // (Optional) Update a specific post
+    public function update(Request $request, $id)
+    {
+        $post = Post::findOrFail($id);
+
+        // Authorization check
+        if ($post->user_id !== Auth::id()) {
+            return redirect()->route('home')->with('error', 'Unauthorized action.');
+        }
+
+        $request->validate([
+            'title' => 'required|string|max:255',
+            'content' => 'required|string',
+            'image' => 'nullable|image|mimes:jpeg,png,jpg|max:2048',
+        ]);
+
+        $post->title = $request->input('title');
+        $post->content = $request->input('content');
+
+        if ($request->hasFile('image')) {
+            // Delete old image if exists
+            if ($post->image) {
+                Storage::disk('public')->delete($post->image);
+            }
+            $imagePath = $request->file('image')->store('posts', 'public');
+            $post->image = $imagePath;
+        }
+
+        $post->save();
+
+        return redirect()->route('posts.show', $post->id)->with('success', 'Post updated successfully!');
     }
 }

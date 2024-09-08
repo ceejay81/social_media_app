@@ -1,0 +1,44 @@
+<?php
+
+use Illuminate\Database\Migrations\Migration;
+use Illuminate\Database\Schema\Blueprint;
+use Illuminate\Support\Facades\Schema;
+
+class UpdateCommentsTable extends Migration
+{
+    /**
+     * Run the migrations.
+     */
+    public function up(): void
+    {
+        Schema::table('comments', function (Blueprint $table) {
+            if (!Schema::hasColumn('comments', 'user_id')) {
+                $table->unsignedBigInteger('user_id');
+                $table->foreign('user_id')->references('id')->on('users')->onDelete('cascade');
+            }
+            
+            if (!Schema::hasColumn('comments', 'post_id')) {
+                $table->unsignedBigInteger('post_id');
+                $table->foreign('post_id')->references('id')->on('posts')->onDelete('cascade');
+            }
+            
+            if (!Schema::hasColumn('comments', 'content')) {
+                $table->text('content');
+            }
+        });
+    }
+
+    /**
+     * Reverse the migrations.
+     */
+    public function down(): void
+    {
+        Schema::table('comments', function (Blueprint $table) {
+            $table->dropForeign(['user_id']);
+            $table->dropForeign(['post_id']);
+            $table->dropColumn('user_id');
+            $table->dropColumn('post_id');
+            $table->dropColumn('content');
+        });
+    }
+}
