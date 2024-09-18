@@ -213,7 +213,7 @@
         <div class="hero-content">
             <h1>WELCOME TO FAKEBOOK</h1>
             <p>Connect with friends, share your moments, and discover a world of possibilities in our vibrant social network.</p>
-            <a href="{{ route('register') }}" class="btn btn-primary">JOIN NOW</a>
+            <a href="{{ route('login') }}" class="btn btn-primary">JOIN NOW</a>
         </div>
         <div class="floating-element moon"></div>
         <div class="floating-element star" style="top: 20%; left: 15%; width: 4px; height: 4px;"></div>

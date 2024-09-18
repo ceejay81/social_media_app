@@ -4,7 +4,7 @@ use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
-class CreatePostsTable extends Migration
+return new class extends Migration
 {
     /**
      * Run the migrations.
@@ -15,7 +15,11 @@ class CreatePostsTable extends Migration
             $table->id();
             $table->foreignId('user_id')->constrained()->onDelete('cascade');
             $table->text('content');
+            $table->string('image')->nullable();
+            $table->string('video')->nullable();
             $table->timestamps();
+            $table->softDeletes();
+            $table->index('user_id');
         });
     }
 
@@ -26,4 +30,4 @@ class CreatePostsTable extends Migration
     {
         Schema::dropIfExists('posts');
     }
-}
+};

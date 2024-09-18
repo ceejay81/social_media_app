@@ -1,32 +1,84 @@
 <!DOCTYPE html>
 <html lang="{{ str_replace('_', '-', app()->getLocale()) }}">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>{{ config('app.name', 'Social Media Fakebook') }}</title>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="csrf-token" content="{{ csrf_token() }}">
 
-    <!-- Vite Styles -->
-    @vite([
-        'resources/css/app.css',
-        'resources/assets/css/demo.css',
-    ])
+    <title>{{ config('app.name', 'Laravel') }}</title>
 
-    <!-- Fonts and Icons -->
-    <link rel="stylesheet" href="{{ asset('resources/assets/vendor/fonts/remixicon/remixicon.css') }}">
-    <link rel="stylesheet" href="{{ asset('resources/assets/vendor/fonts/remixicon/remixicon.scss') }}">
+    <!-- Vite Styles and Scripts -->
+    @vite(['resources/css/app.css', 'resources/js/app.js'])
 
     <!-- Additional Styles -->
     <style>
         body {
             font-family: 'Figtree', sans-serif; /* Example of using a custom font */
         }
+        
+        @keyframes pop-out {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.2); }
+            100% { transform: scale(1); }
+        }
+
+        .pop-out {
+            animation: pop-out 0.3s ease-in-out;
+        }
+
+        .reaction-btn {
+            transition: transform 0.2s;
+        }
+
+        .reaction-btn:hover {
+            transform: scale(1.2);
+        }
+
+        .reaction-options {
+            transition: opacity 0.2s, transform 0.2s;
+            transform: translateY(10px);
+            opacity: 0;
+        }
+
+        .reaction-button:hover + .reaction-options,
+        .reaction-options:hover {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        .comments-section {
+            max-height: 300px;
+            overflow-y: auto;
+        }
+
+        .comment {
+            transition: background-color 0.2s;
+        }
+
+        .comment:hover {
+            background-color: #f3f4f6;
+        }
+
+        .edit-comment-form input {
+            width: 100%;
+            padding: 0.5rem;
+            border: 1px solid #d1d5db;
+            border-radius: 9999px 0 0 9999px;
+        }
+
+        .edit-comment-form button {
+            padding: 0.5rem 1rem;
+            background-color: #3b82f6;
+            color: white;
+            border-radius: 0 9999px 9999px 0;
+        }
     </style>
 
     <!-- Link to the new sidebar CSS file -->
     <link rel="stylesheet" href="{{ asset('css/sidebar.css') }}">
     
-    <!-- Compiled Remix Icon CSS -->
-    <link href="{{ asset('css/remixicon.css') }}" rel="stylesheet">
+    <!-- CSRF Token -->
+    <meta name="csrf-token" content="{{ csrf_token() }}">
 </head>
 
 <body class="bg-gray-100">
@@ -50,19 +102,13 @@
         </div>
     </div>
     
-    <!-- Vite Scripts -->
-    @vite([
-        'resources/js/app.js',
-    ])
-
-    <!-- Additional Scripts -->
-    <script src="{{ asset('resources/assets/vendor/js/bootstrap.js') }}"></script>
-
     <!-- Initialize any JS components if needed -->
     <script>
         document.addEventListener('DOMContentLoaded', function () {
             // Initialization code here
         });
     </script>
+    
+    @stack('scripts')
 </body>
 </html>

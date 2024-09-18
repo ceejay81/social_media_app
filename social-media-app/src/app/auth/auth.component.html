@@ -1,0 +1,33 @@
+<div class="auth-container">
+  <div class="auth-card">
+    <div class="facebook-logo">f</div>
+    <form (ngSubmit)="onSubmit()">
+      <div class="mb-3">
+        <input type="email" class="form-control" id="email" name="email" placeholder="Email" required>
+      </div>
+      <div class="mb-3">
+        <input type="password" class="form-control" id="password" name="password" placeholder="Password" required>
+      </div>
+      <div class="mb-3" *ngIf="!isLoginMode">
+        <input type="password" class="form-control" id="confirmPassword" name="confirmPassword" placeholder="Confirm Password" required>
+      </div>
+      <div class="mb-3" *ngIf="isLoginMode">
+        <label>
+          <input type="checkbox" name="remember"> Remember me
+        </label>
+      </div>
+      <div class="d-grid gap-2">
+        <button type="submit" class="btn btn-primary btn-lg">{{ isLoginMode ? 'Log in' : 'Sign up' }}</button>
+      </div>
+      <div class="text-center mt-3" *ngIf="isLoginMode">
+        <a href="#">Forgot your password?</a>
+      </div>
+      <hr class="my-4">
+      <div class="text-center">
+        <button type="button" (click)="onSwitchMode()" class="btn btn-success btn-lg">
+          {{ isLoginMode ? 'Create New Account' : 'Switch to Login' }}
+        </button>
+      </div>
+    </form>
+  </div>
+</div>

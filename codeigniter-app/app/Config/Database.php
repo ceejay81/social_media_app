@@ -41,7 +41,7 @@ class Database extends Config
         'hostname' => 'localhost',
         'username' => 'root',
         'password' => '',
-        'database' => 'laraveldb',
+        'database' => 'fakebook',
         'DBDriver' => 'MySQLi',
         'DBPrefix' => '',
         'pConnect' => false,

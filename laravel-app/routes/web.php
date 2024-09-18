@@ -66,6 +66,29 @@ Route::middleware(['auth'])->group(function () {
 
     // Comments
     Route::post('/posts/{post}/comments', [CommentController::class, 'store'])->name('comments.store');
+    Route::patch('/comments/{comment}', [CommentController::class, 'update'])->name('comments.update');
+    Route::delete('/comments/{comment}', [CommentController::class, 'destroy'])->name('comments.delete');
+
+    // Add these routes:
+    Route::post('/posts/{post}/react', [PostController::class, 'react'])->name('posts.react');
+
+    // Add this new route for sharing posts
+    Route::post('/posts/{post}/share', [PostController::class, 'share'])->name('posts.share');
+
+    // Like functionality
+    Route::post('/posts/{post}/like', [PostController::class, 'like'])->name('posts.like');
 });
+
+// API routes
+Route::prefix('api')->group(function () {
+    Route::get('/posts', 'PostController@index');
+    Route::post('/posts', 'PostController@store');
+    // Add other API routes as needed
+});
+
+// Catch-all route to serve the Angular app
+Route::get('{any}', function () {
+    return view('app');
+})->where('any', '.*');
 
 require __DIR__.'/auth.php';
