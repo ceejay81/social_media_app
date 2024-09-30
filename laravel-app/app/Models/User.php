@@ -2,11 +2,9 @@
 
 namespace App\Models;
 
-// use Illuminate\Contracts\Auth\MustVerifyEmail;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
-use Illuminate\Support\Facades\DB; // Add this line
 
 class User extends Authenticatable
 {
@@ -26,6 +24,7 @@ class User extends Authenticatable
         'bio',
         'location',
         'workplace',
+        'birthday',
     ];
 
     /**
@@ -48,9 +47,11 @@ class User extends Authenticatable
         return [
             'email_verified_at' => 'datetime',
             'password' => 'hashed',
+            'birthday' => 'date',
         ];
     }
 
+    
     public function posts()
     {
         return $this->hasMany(Post::class)->latest();
@@ -88,5 +89,52 @@ class User extends Authenticatable
                     ->where('shares.user_id', $this->id)
             )
             ->orderBy('order_date', 'desc');
+    }
+
+    public function friends()
+    {
+        return $this->belongsToMany(User::class, 'friendships', 'user_id', 'friend_id')
+                    ->withTimestamps()
+                    ->withPivot('accepted')
+                    ->wherePivot('accepted', true)
+                    ->select('users.*');  // Specify to select all columns from the users table
+    }
+
+    public function friendRequestsSent()
+    {
+        return $this->hasMany(FriendRequest::class, 'user_id');
+    }
+
+    public function friendRequests()
+    {
+        return $this->belongsToMany(User::class, 'friendships', 'friend_id', 'user_id')
+                    ->withTimestamps()
+                    ->withPivot('accepted')
+                    ->wherePivot('accepted', false)
+                    ->select('users.*');
+    }
+
+    public function sentFriendRequests()
+    {
+        return $this->belongsToMany(User::class, 'friendships', 'user_id', 'friend_id')
+                    ->withTimestamps()
+                    ->withPivot('accepted')
+                    ->wherePivot('accepted', false)
+                    ->select('users.*');
+    }
+
+    public function hasSentFriendRequestTo(User $user)
+    {
+        return $this->friendRequestsSent()->where('friend_id', $user->id)->exists();
+    }
+
+    // Add this method to get the sender of a friend request
+    public function friendRequestsReceived()
+    {
+        return $this->belongsToMany(User::class, 'friendships', 'friend_id', 'user_id')
+                    ->withTimestamps()
+                    ->withPivot('accepted')
+                    ->wherePivot('accepted', false)
+                    ->select('users.*');
     }
 }

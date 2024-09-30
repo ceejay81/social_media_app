@@ -30,8 +30,8 @@
 
         .hero-content {
             max-width: 800px;
-            z-index: 2;
-        }
+                z-index: 2;
+            }
 
         .hero-section h1 {
             font-size: 4rem;

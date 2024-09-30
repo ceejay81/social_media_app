@@ -12,13 +12,18 @@ use App\Http\Controllers\FeedbackController;
 use App\Http\Controllers\SettingsController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\CommentController;
+use App\Http\Controllers\ReactionController;
+use App\Http\Controllers\ShareController;
+use App\Http\Controllers\LikeController;
+use App\Http\Controllers\FriendController;
 
 use Illuminate\Support\Facades\Route;
+use App\Models\Post;
 
 // Public Routes
 Route::get('/', function () {
     return view('welcome');
-});
+})->name('welcome');
 
 // Authenticated Routes
 Route::middleware(['auth'])->group(function () {
@@ -67,28 +72,29 @@ Route::middleware(['auth'])->group(function () {
     // Comments
     Route::post('/posts/{post}/comments', [CommentController::class, 'store'])->name('comments.store');
     Route::patch('/comments/{comment}', [CommentController::class, 'update'])->name('comments.update');
-    Route::delete('/comments/{comment}', [CommentController::class, 'destroy'])->name('comments.delete');
+    Route::delete('/comments/{comment}', [CommentController::class, 'destroy'])->name('comments.destroy');
+    Route::get('/posts/{post}/comments', [CommentController::class, 'loadMore'])->name('comments.load-more');
 
-    // Add these routes:
-    Route::post('/posts/{post}/react', [PostController::class, 'react'])->name('posts.react');
+    // Reactions
+    Route::post('/posts/{post}/react', [ReactionController::class, 'react'])->name('posts.react');
 
-    // Add this new route for sharing posts
-    Route::post('/posts/{post}/share', [PostController::class, 'share'])->name('posts.share');
+    // Sharing posts
+    Route::post('/posts/{post}/share', [ShareController::class, 'share'])->name('posts.share');
 
     // Like functionality
-    Route::post('/posts/{post}/like', [PostController::class, 'like'])->name('posts.like');
-});
+    Route::post('/posts/{post}/like', [LikeController::class, 'like'])->name('posts.like');
 
-// API routes
-Route::prefix('api')->group(function () {
-    Route::get('/posts', 'PostController@index');
-    Route::post('/posts', 'PostController@store');
-    // Add other API routes as needed
-});
+    // Delete Post
+    Route::delete('/posts/{post}', [PostController::class, 'destroy'])->name('posts.destroy');
 
-// Catch-all route to serve the Angular app
-Route::get('{any}', function () {
-    return view('app');
-})->where('any', '.*');
+    // Add the following line for the friends route
+    Route::get('/friends', [FriendController::class, 'index'])->name('friends.index');
+    Route::get('/friends/search', [FriendController::class, 'search'])->name('friends.search');
+
+    // Friend Request Management
+    Route::post('/friends/add/{user}', [FriendController::class, 'sendRequest'])->name('friends.add');
+    Route::post('/friends/accept/{request}', [FriendController::class, 'acceptRequest'])->name('friends.accept');
+    Route::post('/friends/decline/{request}', [FriendController::class, 'declineRequest'])->name('friends.decline');
+});
 
 require __DIR__.'/auth.php';

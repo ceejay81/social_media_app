@@ -1,5 +1,4 @@
 import './bootstrap';
-import './post-interactions';
 
 import Alpine from 'alpinejs';
 import 'remixicon/fonts/remixicon.css';

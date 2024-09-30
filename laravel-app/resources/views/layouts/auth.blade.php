@@ -5,66 +5,32 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>{{ config('app.name', 'FakeBook') }} - @yield('title')</title>
 
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.5.0/font/bootstrap-icons.css">
+
     <!-- Importing CSS from Materio Template using Vite -->
     @vite('resources/assets/vendor/scss/core.scss')
     @vite('resources/assets/vendor/scss/theme-default.scss')
     @vite('resources/css/app.css')
 
-    <style>
-        body {
-            background-color: #f0f2f5;
-            font-family: 'Figtree', sans-serif;
-        }
-        .auth-container {
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            min-height: 100vh;
-            padding: 20px;
-        }
-        .auth-card {
-            background-color: #ffffff;
-            border-radius: 8px;
-            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1), 0 8px 16px rgba(0, 0, 0, 0.1);
-            padding: 20px;
-            width: 100%;
-            max-width: 400px;
-        }
-        .facebook-logo {
-            font-family: Helvetica, Arial, sans-serif;
-            font-size: 40px;
-            font-weight: bold;
-            color: #1877f2;
-            text-align: center;
-            margin-bottom: 20px;
-        }
-        .btn-primary {
-            background-color: #1877f2;
-            border-color: #1877f2;
-        }
-        .btn-primary:hover {
-            background-color: #166fe5;
-            border-color: #166fe5;
-        }
-        .btn-success {
-            background-color: #42b72a;
-            border-color: #42b72a;
-        }
-        .btn-success:hover {
-            background-color: #36a420;
-            border-color: #36a420;
-        }
-    </style>
+    <!-- SweetAlert2 CSS -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/sweetalert2@11.0.19/dist/sweetalert2.min.css">
+
+    @stack('styles')
 </head>
 <body>
-    <div class="auth-container">
-        <div class="auth-card">
-            <div class="facebook-logo">f</div>
-            @yield('content')
-        </div>
-    </div>
+    @yield('content')
+
+    <!-- Bootstrap JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
 
     <!-- Importing JavaScript files -->
     @vite('resources/js/app.js')
+
+    <!-- SweetAlert2 JS -->
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11.0.19/dist/sweetalert2.all.min.js"></script>
+
+    @stack('scripts')
 </body>
 </html>

@@ -5,15 +5,19 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta name="csrf-token" content="{{ csrf_token() }}">
 
-    <title>{{ config('app.name', 'Laravel') }}</title>
+    <title>{{ config('app.name', 'FakeBook') }}</title>
 
-    <!-- Vite Styles and Scripts -->
+    <!-- Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&display=swap" rel="stylesheet">
+
+    <!-- Styles -->
     @vite(['resources/css/app.css', 'resources/js/app.js'])
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.1.1/css/all.min.css">
 
     <!-- Additional Styles -->
     <style>
         body {
-            font-family: 'Figtree', sans-serif; /* Example of using a custom font */
+            font-family: 'Roboto', sans-serif;
         }
         
         @keyframes pop-out {
@@ -84,19 +88,14 @@
 <body class="bg-gray-100">
     <div class="flex flex-col min-h-screen">
         <!-- Header -->
-        <header class="bg-white shadow-md">
-            <div class="container mx-auto px-4 py-2 flex justify-between items-center">
-                <h1 class="text-2xl font-bold text-blue-600">FakeBook</h1>
-                <!-- Add header content (e.g., search bar, notifications, user menu) -->
-            </div>
-        </header>
+        @include('layouts.navigation')
 
-        <div class="flex flex-1">
+        <div class="flex flex-1 pt-16"> <!-- Added pt-16 here -->
             <!-- Sidebar -->
             @include('layouts.sidebar')
 
             <!-- Main Content -->
-            <main class="flex-1 overflow-x-hidden overflow-y-auto bg-gray-100">
+            <main class="flex-1 overflow-x-hidden overflow-y-auto bg-gray-100 p-4 ml-64"> <!-- Added ml-64 here -->
                 @yield('content')
             </main>
         </div>
@@ -108,7 +107,5 @@
             // Initialization code here
         });
     </script>
-    
-    @stack('scripts')
 </body>
 </html>

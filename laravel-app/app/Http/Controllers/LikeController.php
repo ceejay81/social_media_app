@@ -30,4 +30,23 @@ class LikeController extends Controller
             'likesCount' => $likesCount
         ]);
     }
+
+    public function toggleLikePost(Post $post)
+    {
+        try {
+            $user = auth()->user();
+            $liked = $user->likes()->toggle($post->id);
+            
+            return response()->json([
+                'success' => true,
+                'liked' => in_array($post->id, $liked['attached']),
+                'likesCount' => $post->likes()->count(),
+            ]);
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Error toggling like: ' . $e->getMessage(),
+            ], 500);
+        }
+    }
 }

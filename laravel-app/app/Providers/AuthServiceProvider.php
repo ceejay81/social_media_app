@@ -10,7 +10,6 @@ use App\Policies\CommentPolicy;
 class AuthServiceProvider extends ServiceProvider
 {
     protected $policies = [
-        // ... other policies ...
         Comment::class => CommentPolicy::class,
     ];
 
