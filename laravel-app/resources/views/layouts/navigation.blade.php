@@ -11,8 +11,20 @@
                 </div>
 
                 <!-- Search Bar -->
-                <div class="ml-4">
-                    <input type="text" placeholder="Search FakeBook" class="bg-white rounded-full py-2 px-4 text-sm focus:outline-none focus:ring-2 focus:ring-white">
+                <div class="ml-4 relative">
+                    <div class="relative">
+                        <svg class="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
+                            <path fill-rule="evenodd" d="M8 4a4 4 0 100 8 4 4 0 000-8zM2 8a6 6 0 1110.89 3.476l4.817 4.817a1 1 0 01-1.414 1.414l-4.816-4.816A6 6 0 012 8z" clip-rule="evenodd" />
+                        </svg>
+                        <input type="text" id="search-input" placeholder="Search FakeBook" class="bg-white rounded-full py-2 pl-10 pr-4 text-sm focus:outline-none focus:ring-2 focus:ring-white" aria-label="Search FakeBook">
+                    </div>
+                    <div id="search-results" class="absolute z-10 bg-white rounded-md shadow-lg mt-2 w-96 hidden" role="listbox"></div>
+                    <div id="search-loading" class="absolute z-10 bg-white rounded-md shadow-lg mt-2 w-96 hidden p-4 text-center">
+                        <svg class="animate-spin h-5 w-5 text-blue-500 mx-auto" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                            <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                            <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                        </svg>
+                    </div>
                 </div>
             </div>
 
@@ -126,3 +138,125 @@
         </div>
     </div>
 </nav>
+
+<script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const searchInput = document.getElementById('search-input');
+    const searchResults = document.getElementById('search-results');
+    const searchLoading = document.getElementById('search-loading');
+    let currentFocus = -1;
+
+    if (searchInput) {
+        searchInput.addEventListener('input', debounce(function() {
+            const query = this.value.trim();
+            if (query.length > 0) {
+                searchLoading.classList.remove('hidden');
+                searchResults.classList.add('hidden');
+                axios.get(`/search?query=${encodeURIComponent(query)}`)
+                    .then(response => {
+                        displaySearchResults(response.data);
+                    })
+                    .catch(error => {
+                        console.error('Error:', error);
+                    })
+                    .finally(() => {
+                        searchLoading.classList.add('hidden');
+                    });
+            } else {
+                searchResults.innerHTML = '';
+                searchResults.classList.add('hidden');
+            }
+        }, 300));
+    }
+
+    function displaySearchResults(results) {
+        searchResults.innerHTML = '';
+        if (results.length > 0) {
+            const ul = document.createElement('ul');
+            ul.className = 'py-2';
+            results.forEach((user, index) => {
+                const li = document.createElement('li');
+                li.className = 'px-4 py-2 hover:bg-gray-100 cursor-pointer';
+                li.innerHTML = `
+                    <a href="/profile/${user.id}" class="flex items-center">
+                        <img src="${user.profile_picture_url ? '/storage/' + user.profile_picture_url : '/images/default-avatar.jpg'}" 
+                            alt="${user.name}" 
+                            class="w-10 h-10 rounded-full mr-3 object-cover">
+                        <div>
+                            <span class="font-semibold">${user.name}</span>
+                            ${user.mutual_friends_count ? `<p class="text-xs text-gray-500">${user.mutual_friends_count} mutual friends</p>` : ''}
+                        </div>
+                    </a>
+                `;
+                li.addEventListener('click', () => {
+                    window.location.href = `/profile/${user.id}`;
+                });
+                ul.appendChild(li);
+            });
+            searchResults.appendChild(ul);
+            searchResults.classList.remove('hidden');
+        } else {
+            searchResults.innerHTML = '<p class="px-4 py-2 text-gray-500">No results found</p>';
+            searchResults.classList.remove('hidden');
+        }
+    }
+
+    searchInput.addEventListener('keydown', function(e) {
+        const items = searchResults.getElementsByTagName('li');
+        if (e.keyCode === 40) { // Arrow down
+            currentFocus++;
+            addActive(items);
+        } else if (e.keyCode === 38) { // Arrow up
+            currentFocus--;
+            addActive(items);
+        } else if (e.keyCode === 13) { // Enter
+            e.preventDefault();
+            if (currentFocus > -1) {
+                if (items) items[currentFocus].click();
+            }
+        }
+    });
+
+    function addActive(items) {
+        if (!items) return false;
+        removeActive(items);
+        if (currentFocus >= items.length) currentFocus = 0;
+        if (currentFocus < 0) currentFocus = (items.length - 1);
+        items[currentFocus].classList.add('bg-gray-100');
+    }
+
+    function removeActive(items) {
+        for (let i = 0; i < items.length; i++) {
+            items[i].classList.remove('bg-gray-100');
+        }
+    }
+
+    function debounce(func, wait) {
+        let timeout;
+        return function executedFunction(...args) {
+            const later = () => {
+                clearTimeout(timeout);
+                func(...args);
+            };
+            clearTimeout(timeout);
+            timeout = setTimeout(later, wait);
+        };
+    }
+
+    // Hide search results when clicking outside
+    document.addEventListener('click', function(event) {
+        if (!searchInput.contains(event.target) && !searchResults.contains(event.target)) {
+            searchResults.classList.add('hidden');
+        }
+    });
+
+    // Keyboard shortcut for focusing search input
+    document.addEventListener('keydown', function(e) {
+        if (e.ctrlKey && e.key === 'k') {
+            e.preventDefault();
+            searchInput.focus();
+        }
+    });
+});
+</script>

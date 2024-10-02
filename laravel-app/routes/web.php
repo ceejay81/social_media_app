@@ -87,14 +87,18 @@ Route::middleware(['auth'])->group(function () {
     // Delete Post
     Route::delete('/posts/{post}', [PostController::class, 'destroy'])->name('posts.destroy');
 
-    // Add the following line for the friends route
+    // Friends management
     Route::get('/friends', [FriendController::class, 'index'])->name('friends.index');
     Route::get('/friends/search', [FriendController::class, 'search'])->name('friends.search');
-
-    // Friend Request Management
+    
+    // Friend requests
     Route::post('/friends/add/{user}', [FriendController::class, 'sendRequest'])->name('friends.add');
-    Route::post('/friends/accept/{request}', [FriendController::class, 'acceptRequest'])->name('friends.accept');
-    Route::post('/friends/decline/{request}', [FriendController::class, 'declineRequest'])->name('friends.decline');
+    Route::post('/friends/accept/{friendshipId}', [FriendController::class, 'accept'])->name('friends.accept');
+    Route::post('/friends/decline/{friendshipId}', [FriendController::class, 'decline'])->name('friends.decline');
+    Route::post('/friends/cancel/{friendshipId}', [FriendController::class, 'cancelRequest'])->name('friends.cancel');
+
+    // Search functionality
+    Route::get('/search', [FriendController::class, 'search'])->name('search');
 });
 
 require __DIR__.'/auth.php';

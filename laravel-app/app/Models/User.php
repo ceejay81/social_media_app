@@ -5,7 +5,7 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
-
+use Illuminate\Support\Facades\DB;
 class User extends Authenticatable
 {
     use HasFactory, Notifiable;
@@ -98,11 +98,6 @@ class User extends Authenticatable
                     ->withPivot('accepted')
                     ->wherePivot('accepted', true)
                     ->select('users.*');  // Specify to select all columns from the users table
-    }
-
-    public function friendRequestsSent()
-    {
-        return $this->hasMany(FriendRequest::class, 'user_id');
     }
 
     public function friendRequests()

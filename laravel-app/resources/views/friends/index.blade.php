@@ -14,7 +14,7 @@
                         <!-- Friend Search -->
                         <div class="mb-6">
                             <form action="{{ route('friends.search') }}" method="GET" class="flex">
-                                <input type="text" name="query" placeholder="Search friends..." class="flex-grow p-2 border rounded-l-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
+                                <input type="text" name="query" placeholder="Search friends..." class="flex-grow p-2 border rounded-l-lg focus:outline-none focus:ring-2 focus:ring-blue-500" required>
                                 <button type="submit" class="bg-blue-500 text-white px-4 py-2 rounded-r-lg hover:bg-blue-600">
                                     <i class="fas fa-search"></i>
                                 </button>
@@ -70,9 +70,15 @@
                                             <p class="text-sm text-gray-500">{{ $suggestion->mutual_friends_count ?? 0 }} mutual friends</p>
                                         </div>
                                     </div>
-                                    <button class="add-friend-btn bg-blue-500 text-white px-4 py-2 rounded-md hover:bg-blue-600" data-user-id="{{ $suggestion->id }}">
-                                        <i class="fas fa-user-plus mr-2"></i>Add Friend
-                                    </button>
+                                    @if(in_array($suggestion->id, $pendingRequests))
+                                        <button class="cancel-request-btn bg-red-500 text-white px-4 py-2 rounded-md hover:bg-red-600" data-user-id="{{ $suggestion->id }}">
+                                            <i class="fas fa-user-times mr-2"></i>Cancel Request
+                                        </button>
+                                    @else
+                                        <button class="add-friend-btn bg-blue-500 text-white px-4 py-2 rounded-md hover:bg-blue-600" data-user-id="{{ $suggestion->id }}">
+                                            <i class="fas fa-user-plus mr-2"></i>Add Friend
+                                        </button>
+                                    @endif
                                 </div>
                             @endforeach
                         </div>
@@ -84,7 +90,7 @@
                     <div class="bg-white rounded-lg shadow p-4 mb-4">
                         <h3 class="font-semibold mb-2">Friend Requests</h3>
                         <ul class="space-y-2">
-                            @forelse($user->friendRequestsReceived as $friendRequest)
+                            @forelse($friendRequests as $friendRequest)
                                 <li class="flex items-center justify-between">
                                     <div class="flex items-center">
                                         <img src="{{ $friendRequest->profile_picture_url ? asset('storage/' . $friendRequest->profile_picture_url) : asset('images/default-avatar.jpg') }}" 
@@ -93,8 +99,12 @@
                                         <span class="text-sm">{{ $friendRequest->name }}</span>
                                     </div>
                                     <div class="flex space-x-2">
-                                        <button class="accept-request-btn bg-blue-500 text-white px-2 py-1 rounded text-xs" data-request-id="{{ $friendRequest->pivot->id }}">Accept</button>
-                                        <button class="decline-request-btn bg-gray-200 text-gray-700 px-2 py-1 rounded text-xs" data-request-id="{{ $friendRequest->pivot->id }}">Decline</button>
+                                        <button class="accept-request-btn bg-green-500 text-white px-2 py-1 rounded text-xs" data-request-id="{{ $friendRequest->pivot->id }}">
+                                            <i class="fas fa-check mr-1"></i>Accept
+                                        </button>
+                                        <button class="decline-request-btn bg-red-500 text-white px-2 py-1 rounded text-xs" data-request-id="{{ $friendRequest->pivot->id }}">
+                                            <i class="fas fa-times mr-1"></i>Decline
+                                        </button>
                                     </div>
                                 </li>
                             @empty
@@ -121,85 +131,136 @@
     </div>
     @endsection
 
+    <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
     <script>
     document.addEventListener('DOMContentLoaded', function() {
+        const csrfToken = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
+        
+        axios.defaults.headers.common['X-CSRF-TOKEN'] = csrfToken;
+        axios.defaults.headers.common['Accept'] = 'application/json';
+
         document.addEventListener('click', function(event) {
             if (event.target.classList.contains('add-friend-btn')) {
                 const userId = event.target.dataset.userId;
                 addFriend(userId, event.target);
+            } else if (event.target.classList.contains('cancel-request-btn')) {
+                const friendshipId = event.target.dataset.friendshipId;
+                cancelFriendRequest(friendshipId, event.target);
             } else if (event.target.classList.contains('accept-request-btn')) {
                 const requestId = event.target.dataset.requestId;
-                acceptFriendRequest(requestId, event.target);
+                handleFriendRequest(requestId, event.target, 'accept');
             } else if (event.target.classList.contains('decline-request-btn')) {
                 const requestId = event.target.dataset.requestId;
-                declineFriendRequest(requestId, event.target);
+                handleFriendRequest(requestId, event.target, 'decline');
             }
         });
+
+        function addFriend(userId, button) {
+            button.disabled = true;
+            button.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Sending...';
+
+            axios.post(`/friends/add/${userId}`)
+                .then(response => {
+                    if (response.data.success) {
+                        button.textContent = 'Cancel Request';
+                        button.classList.remove('bg-blue-500', 'hover:bg-blue-600', 'add-friend-btn');
+                        button.classList.add('bg-red-500', 'hover:bg-red-600', 'cancel-request-btn');
+                        button.dataset.friendshipId = response.data.friendshipId;
+                    } else {
+                        throw new Error(response.data.message);
+                    }
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    button.textContent = 'Add Friend';
+                    button.disabled = false;
+                    alert(error.response?.data?.message || 'An error occurred while sending the friend request.');
+                });
+        }
+
+        function cancelFriendRequest(friendshipId, button) {
+            button.disabled = true;
+            button.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Cancelling...';
+
+            axios.post(`/friends/cancel/${friendshipId}`)
+                .then(response => {
+                    if (response.data.success) {
+                        button.textContent = 'Add Friend';
+                        button.classList.remove('bg-red-500', 'hover:bg-red-600', 'cancel-request-btn');
+                        button.classList.add('bg-blue-500', 'hover:bg-blue-600', 'add-friend-btn');
+                        delete button.dataset.friendshipId;
+                        button.dataset.userId = response.data.userId;
+                    } else {
+                        throw new Error(response.data.message);
+                    }
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    button.textContent = 'Cancel Request';
+                    button.disabled = false;
+                    alert(error.response?.data?.message || 'An error occurred while cancelling the friend request.');
+                });
+        }
+
+        function handleFriendRequest(requestId, button, action) {
+            const listItem = button.closest('li');
+            const friendName = listItem.querySelector('span').textContent;
+            const originalContent = listItem.innerHTML;
+
+            listItem.innerHTML = `<div class="flex items-center"><i class="fas fa-spinner fa-spin mr-2"></i> Processing...</div>`;
+
+            const routeUrl = action === 'accept'
+                ? `/friends/accept/${requestId}`
+                : `/friends/decline/${requestId}`;
+
+            axios.post(routeUrl)
+                .then(response => {
+                    if (response.data.success) {
+                        const message = action === 'accept' 
+                            ? `${response.data.friendName} is now your friend!`
+                            : `Friend request from ${response.data.friendName} declined.`;
+                        
+                        listItem.innerHTML = `<div class="text-green-500"><i class="fas fa-${action === 'accept' ? 'check' : 'times'} mr-2"></i> ${message}</div>`;
+                        
+                        setTimeout(() => {
+                            listItem.remove();
+                            updateFriendRequestCount();
+                        }, 3000);
+                    } else {
+                        throw new Error(response.data.message);
+                    }
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    listItem.innerHTML = originalContent;
+                    alert(error.response?.data?.message || `Failed to ${action} friend request. Please try again.`);
+                });
+        }
+
+        function updateFriendRequestCount() {
+            const friendRequestsList = document.querySelector('.friend-requests-list');
+            const friendRequestCount = friendRequestsList.querySelectorAll('li').length;
+            const friendRequestCountElement = document.querySelector('.friend-request-count');
+            
+            if (friendRequestCountElement) {
+                friendRequestCountElement.textContent = friendRequestCount;
+            }
+            
+            if (friendRequestCount === 0) {
+                friendRequestsList.innerHTML = '<li class="text-gray-500 italic text-sm">No pending friend requests</li>';
+            }
+        }
+
+        // Add a function to update the friend list dynamically
+        function updateFriendList() {
+            axios.get('{{ route('friends.index') }}')
+                .then(response => {
+                    const friendListContainer = document.querySelector('.space-y-4');
+                    friendListContainer.innerHTML = response.data.friendListHtml;
+                })
+                .catch(error => {
+                    console.error('Error updating friend list:', error);
+                });
+        }
     });
-
-    function addFriend(userId, button) {
-        fetch(`/friends/add/${userId}`, {
-            method: 'POST',
-            headers: {
-                'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content'),
-                'Accept': 'application/json',
-                'Content-Type': 'application/json'
-            }
-        })
-        .then(response => response.json())
-        .then(data => {
-            if (data.success) {
-                button.textContent = 'Request Sent';
-                button.disabled = true;
-            } else {
-                alert(data.message);
-            }
-        })
-        .catch(error => console.error('Error:', error));
-    }
-
-    function acceptFriendRequest(requestId, button) {
-        fetch(`/friends/accept/${requestId}`, {
-            method: 'POST',
-            headers: {
-                'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content'),
-                'Accept': 'application/json',
-                'Content-Type': 'application/json'
-            }
-        })
-        .then(response => response.json())
-        .then(data => {
-            if (data.success) {
-                const listItem = button.closest('li');
-                const friendName = listItem.querySelector('span').textContent;
-                listItem.innerHTML = `<span>${friendName} is now your friend!</span>`;
-                setTimeout(() => {
-                    listItem.remove();
-                }, 3000);
-            } else {
-                alert(data.message);
-            }
-        })
-        .catch(error => console.error('Error:', error));
-    }
-
-    function declineFriendRequest(requestId, button) {
-        fetch(`/friends/decline/${requestId}`, {
-            method: 'POST',
-            headers: {
-                'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content'),
-                'Accept': 'application/json',
-                'Content-Type': 'application/json'
-            }
-        })
-        .then(response => response.json())
-        .then(data => {
-            if (data.success) {
-                button.closest('li').remove();
-            } else {
-                alert('Failed to decline friend request: ' + data.message);
-            }
-        })
-        .catch(error => console.error('Error:', error));
-    }
     </script>

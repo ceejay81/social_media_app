@@ -509,6 +509,17 @@ document.addEventListener('DOMContentLoaded', function() {
             handleDeleteComment(e.target);
         }
     });
+
+    // Add this new event listener for form submissions
+    document.addEventListener('submit', function(e) {
+        if (e.target.classList.contains('edit-form')) {
+            e.preventDefault();
+            submitEditForm(e.target);
+        } else if (e.target.classList.contains('reply-form')) {
+            e.preventDefault();
+            submitReplyForm(e.target);
+        }
+    });
 });
 
 function handleReaction(postId, reaction, reactionButton, reactionText) {
@@ -702,9 +713,10 @@ function handleEditComment(button) {
     const commentDiv = button.closest('.comment');
     const commentContent = commentDiv.querySelector('.comment-content');
     const editForm = commentDiv.querySelector('.edit-form');
-    
+    const editInput = editForm.querySelector('input[name="content"]');
+
     if (editForm.classList.contains('hidden')) {
-        editForm.querySelector('input[name="content"]').value = commentContent.textContent;
+        editInput.value = commentContent.textContent.trim();
         commentContent.classList.add('hidden');
         editForm.classList.remove('hidden');
     } else {
@@ -765,28 +777,55 @@ function submitReplyForm(form) {
 
 function submitEditForm(form) {
     const commentDiv = form.closest('.comment');
+    if (!commentDiv) {
+        console.error('Could not find parent comment div');
+        return;
+    }
     const commentId = commentDiv.dataset.commentId;
+    if (!commentId) {
+        console.error('Could not find comment ID');
+        return;
+    }
+
+    const contentInput = form.querySelector('input[name="content"]');
+    if (!contentInput || !contentInput.value.trim()) {
+        alert('Comment content cannot be empty');
+        return;
+    }
+
     const formData = new FormData(form);
 
     fetch(`/comments/${commentId}`, {
         method: 'POST',
         headers: {
-            'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
+            'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content'),
+            'Accept': 'application/json',
+            'Content-Type': 'application/json',
         },
-        body: formData
+        body: JSON.stringify({
+            content: contentInput.value,
+            _method: 'PATCH'  // This line is important for method spoofing
+        })
     })
     .then(response => response.json())
     .then(data => {
         if (data.success) {
             const commentContent = commentDiv.querySelector('.comment-content');
-            commentContent.textContent = data.comment.content;
-            commentContent.classList.remove('hidden');
+            if (commentContent) {
+                commentContent.textContent = data.comment.content;
+                commentContent.classList.remove('hidden');
+            } else {
+                console.error('Could not find comment content element');
+            }
             form.classList.add('hidden');
         } else {
-            alert('Failed to update comment: ' + data.message);
+            alert('Failed to update comment: ' + (data.message || 'Unknown error'));
         }
     })
-    .catch(error => console.error('Error:', error));
+    .catch(error => {
+        console.error('Error:', error);
+        alert('An error occurred while updating the comment. Please try again.');
+    });
 }
 
 // Event listeners for form submissions

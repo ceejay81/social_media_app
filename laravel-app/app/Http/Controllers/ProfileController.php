@@ -5,15 +5,15 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use App\Models\User;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Log;
 
 class ProfileController extends Controller
 {
     public function show(User $user)
     {
-        // Only allow viewing the profile of the logged-in user or the profile that exists
-        if ($user->id !== Auth::id() && !Auth::user()->is_admin) {
-            abort(403, 'Unauthorized action.');
-        }
+        \Log::info('Accessing profile', ['user_id' => $user->id, 'current_user' => auth()->id()]);
+        
+        // Allow viewing of any user's profile
         return view('profile.show', ['user' => $user]);
     }
 
