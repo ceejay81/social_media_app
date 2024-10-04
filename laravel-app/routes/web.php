@@ -15,7 +15,7 @@ use App\Http\Controllers\CommentController;
 use App\Http\Controllers\ReactionController;
 use App\Http\Controllers\ShareController;
 use App\Http\Controllers\LikeController;
-use App\Http\Controllers\FriendController;
+use App\Http\Controllers\FriendshipController;
 
 use Illuminate\Support\Facades\Route;
 use App\Models\Post;
@@ -87,18 +87,13 @@ Route::middleware(['auth'])->group(function () {
     // Delete Post
     Route::delete('/posts/{post}', [PostController::class, 'destroy'])->name('posts.destroy');
 
-    // Friends management
-    Route::get('/friends', [FriendController::class, 'index'])->name('friends.index');
-    Route::get('/friends/search', [FriendController::class, 'search'])->name('friends.search');
-    
-    // Friend requests
-    Route::post('/friends/add/{user}', [FriendController::class, 'sendRequest'])->name('friends.add');
-    Route::post('/friends/accept/{friendshipId}', [FriendController::class, 'accept'])->name('friends.accept');
-    Route::post('/friends/decline/{friendshipId}', [FriendController::class, 'decline'])->name('friends.decline');
-    Route::post('/friends/cancel/{friendshipId}', [FriendController::class, 'cancelRequest'])->name('friends.cancel');
-
-    // Search functionality
-    Route::get('/search', [FriendController::class, 'search'])->name('search');
+    // Friendship routes
+    Route::get('/friends', [FriendshipController::class, 'index'])->name('friends.index');
+    Route::post('/friends/send-request', [FriendshipController::class, 'sendRequest'])->name('friends.sendRequest');
+    Route::post('/friends/cancel-request', [FriendshipController::class, 'cancelRequest'])->name('friends.cancelRequest');
+    Route::post('/friends/accept-request', [FriendshipController::class, 'acceptRequest'])->name('friends.acceptRequest');
+    Route::post('/friends/decline-request', [FriendshipController::class, 'declineRequest'])->name('friends.declineRequest');
+    Route::get('/friends/search', [FriendshipController::class, 'search'])->name('friends.search');
 });
 
 require __DIR__.'/auth.php';

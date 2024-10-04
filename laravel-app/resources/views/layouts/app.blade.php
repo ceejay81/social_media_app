@@ -107,5 +107,7 @@
             // Initialization code here
         });
     </script>
+
+    @yield('scripts')
 </body>
 </html>

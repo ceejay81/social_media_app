@@ -91,31 +91,27 @@ class User extends Authenticatable
             ->orderBy('order_date', 'desc');
     }
 
+    public function friendships()
+    {
+        return $this->hasMany(Friendship::class, 'user_id');
+    }
+
     public function friends()
     {
         return $this->belongsToMany(User::class, 'friendships', 'user_id', 'friend_id')
-                    ->withTimestamps()
-                    ->withPivot('accepted')
-                    ->wherePivot('accepted', true)
-                    ->select('users.*');  // Specify to select all columns from the users table
+            ->wherePivot('accepted', true);
     }
 
-    public function friendRequests()
+    public function pendingFriendRequests()
     {
-        return $this->belongsToMany(User::class, 'friendships', 'friend_id', 'user_id')
-                    ->withTimestamps()
-                    ->withPivot('accepted')
-                    ->wherePivot('accepted', false)
-                    ->select('users.*');
+        return $this->hasMany(Friendship::class, 'friend_id')
+            ->where('accepted', false);
     }
 
     public function sentFriendRequests()
     {
-        return $this->belongsToMany(User::class, 'friendships', 'user_id', 'friend_id')
-                    ->withTimestamps()
-                    ->withPivot('accepted')
-                    ->wherePivot('accepted', false)
-                    ->select('users.*');
+        return $this->hasMany(Friendship::class, 'user_id')
+            ->where('accepted', false);
     }
 
     public function hasSentFriendRequestTo(User $user)
