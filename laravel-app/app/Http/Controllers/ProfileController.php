@@ -11,10 +11,17 @@ class ProfileController extends Controller
 {
     public function show(User $user)
     {
-        \Log::info('Accessing profile', ['user_id' => $user->id, 'current_user' => auth()->id()]);
-        
-        // Allow viewing of any user's profile
-        return view('profile.show', ['user' => $user]);
+        $currentUser = Auth::user();
+        $isFriend = $currentUser->friends()->where('friend_id', $user->id)->exists();
+        $hasSentRequest = $currentUser->sentFriendRequests()->where('friend_id', $user->id)->exists();
+        $hasReceivedRequest = $currentUser->pendingFriendRequests()->where('user_id', $user->id)->exists();
+
+        return view('profile.show', [
+            'user' => $user,
+            'isFriend' => $isFriend,
+            'hasSentRequest' => $hasSentRequest,
+            'hasReceivedRequest' => $hasReceivedRequest,
+        ]);
     }
 
     public function edit(User $user)

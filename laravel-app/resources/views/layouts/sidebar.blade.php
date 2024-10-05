@@ -27,7 +27,7 @@
                 </a>
             </li>
             <li>
-                <a href="{{ route('notifications') }}" class="flex items-center px-1 pt-1 text-sm font-medium leading-5 text-white hover:bg-blue-600 rounded-lg transition duration-150 ease-in-out">
+                <a href="{{ route('notifications.index') }}" class="flex items-center px-1 pt-1 text-sm font-medium leading-5 text-white hover:bg-blue-600 rounded-lg transition duration-150 ease-in-out">
                     <i class="fas fa-bell mr-3"></i>
                     <span>Notifications</span>
                 </a>

@@ -37,6 +37,21 @@ class LikeController extends Controller
             $user = auth()->user();
             $liked = $user->likes()->toggle($post->id);
             
+            if (in_array($post->id, $liked['attached'])) {
+                $notificationController = new NotificationController();
+                $notificationController->store(
+                    $post->user_id,
+                    'new_like',
+                    [
+                        'message' => $user->name . ' liked your post.',
+                        'post_id' => $post->id,
+                        'user_id' => $user->id,
+                        'user_name' => $user->name,
+                        'action' => 'liked your post'
+                    ]
+                );
+            }
+            
             return response()->json([
                 'success' => true,
                 'liked' => in_array($post->id, $liked['attached']),
@@ -45,7 +60,7 @@ class LikeController extends Controller
         } catch (\Exception $e) {
             return response()->json([
                 'success' => false,
-                'message' => 'Error toggling like: ' . $e->getMessage(),
+                'message' => 'An error occurred while processing your request.',
             ], 500);
         }
     }

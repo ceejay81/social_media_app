@@ -9,6 +9,7 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Log; // Added for logging
 use App\Services\FileHandlingService;
+use App\Http\Controllers\NotificationController;
 
 class PostController extends Controller
 {
@@ -46,6 +47,13 @@ class PostController extends Controller
 
         $post->save();
 
+        $notificationController = new NotificationController();
+        $notificationController->store(
+            $post->user_id,
+            'new_post',
+            ['message' => 'You have created a new post!']
+        );
+
         return redirect()->route('home')->with('success', 'Post created successfully!');
     }
 
@@ -61,9 +69,9 @@ class PostController extends Controller
     // (Optional) Display a specific post, if needed
     public function show($id)
     {
-        $post = Post::findOrFail($id);
-
-        return view('posts.show', ['post' => $post]);
+        $post = Post::with('user')->findOrFail($id);
+        $user = $post->user;
+        return view('posts.show', compact('post', 'user'));
     }
 
     // (Optional) Method to handle saving a post, if applicable

@@ -45,7 +45,8 @@ Route::middleware(['auth'])->group(function () {
     Route::get('/messages', [MessageController::class, 'index'])->name('messages');
 
     // Notifications
-    Route::get('/notifications', [NotificationController::class, 'index'])->name('notifications');
+    Route::get('/notifications', [NotificationController::class, 'index'])->name('notifications.index');
+    Route::post('/notifications/{id}/read', [NotificationController::class, 'markAsRead'])->name('notifications.markAsRead');
 
     // Create Post
     Route::get('/posts/create', [PostController::class, 'create'])->name('posts.create');
@@ -94,6 +95,9 @@ Route::middleware(['auth'])->group(function () {
     Route::post('/friends/accept-request', [FriendshipController::class, 'acceptRequest'])->name('friends.acceptRequest');
     Route::post('/friends/decline-request', [FriendshipController::class, 'declineRequest'])->name('friends.declineRequest');
     Route::get('/friends/search', [FriendshipController::class, 'search'])->name('friends.search');
+
+    // Show individual posts
+    Route::get('/posts/{post}', [PostController::class, 'show'])->name('posts.show');
 });
 
 require __DIR__.'/auth.php';

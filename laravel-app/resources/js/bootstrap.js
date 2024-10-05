@@ -20,3 +20,12 @@ window.Echo = new Echo({
 // window.axios.defaults.headers.common['X-Requested-With'] = 'XMLHttpRequest';
 // window.axios.defaults.baseURL = process.env.APP_URL;
 window.axios.defaults.baseURL = import.meta.env.VITE_APP_URL;
+
+const userId = document.querySelector('meta[name="user-id"]').getAttribute('content');
+
+window.Echo.private(`notifications.${userId}`)
+    .listen('.new.notification', (e) => {
+        // Handle the new notification, e.g., update the UI or show a toast
+        console.log('New notification:', e.notification);
+        // You can implement a function to add the new notification to the list or show a toast
+    });

@@ -23,6 +23,13 @@ class CommentController extends Controller
                 'parent_id' => $request->parent_id,
             ]);
 
+            $notificationController = new NotificationController();
+            $notificationController->store(
+                $post->user_id,
+                'new_comment',
+                ['message' => auth()->user()->name . ' commented on your post.', 'post_id' => $post->id]
+            );
+
             $user = auth()->user();
 
             return response()->json([
