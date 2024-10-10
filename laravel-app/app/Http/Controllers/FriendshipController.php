@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\User;
 use App\Models\Friendship;
+use App\Http\Controllers\NotificationController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 
@@ -25,10 +26,20 @@ class FriendshipController extends Controller
 
     public function sendRequest(Request $request)
     {
+        $friendId = $request->input('friend_id');
+        $user = auth()->user();
+
         $friendship = Friendship::create([
-            'user_id' => Auth::id(),
-            'friend_id' => $request->friend_id,
+            'user_id' => $user->id,
+            'friend_id' => $friendId,
             'accepted' => false,
+        ]);
+
+        // Create notification
+        $notificationController = new NotificationController();
+        $notificationController->store($friendId, 'friend_request', [
+            'user_id' => $user->id,
+            'username' => $user->username
         ]);
 
         return response()->json(['success' => true]);

@@ -535,7 +535,7 @@ function handleReaction(postId, reaction, reactionButton, reactionText) {
     .then(data => {
         if (data.success) {
             updateReactionUI(postId, data.reactionsCount, data.topReactions);
-            updateReactionButton(reactionButton, reactionText, reaction);
+            updateReactionButton(reactionButton, reactionText, data.userReaction);
         }
     })
     .catch(error => console.error('Error:', error));
@@ -562,11 +562,19 @@ function updateReactionButton(reactionButton, reactionText, reaction) {
         'angry': '😠'
     };
 
-    reactionButton.innerHTML = `
-        <span class="mr-2">${reactionIcons[reaction]}</span>
-        <span class="reaction-text">${reaction.charAt(0).toUpperCase() + reaction.slice(1)}</span>
-    `;
-    reactionButton.classList.add('text-blue-500');
+    if (reaction) {
+        reactionButton.innerHTML = `
+            <span class="mr-2">${reactionIcons[reaction]}</span>
+            <span class="reaction-text">${reaction.charAt(0).toUpperCase() + reaction.slice(1)}</span>
+        `;
+        reactionButton.classList.add('text-blue-500');
+    } else {
+        reactionButton.innerHTML = `
+            <i class="far fa-thumbs-up mr-2"></i>
+            <span class="reaction-text">Like</span>
+        `;
+        reactionButton.classList.remove('text-blue-500');
+    }
 }
 
 function toggleComments(postId) {

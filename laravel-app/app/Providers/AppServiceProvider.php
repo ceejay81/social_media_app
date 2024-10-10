@@ -11,7 +11,9 @@ class AppServiceProvider extends ServiceProvider
      */
     public function register(): void
     {
-        //
+        $this->app->singleton('Illuminate\Contracts\Broadcasting\Factory', function ($app) {
+            return $app->make('Illuminate\Broadcasting\BroadcastManager');
+        });
     }
 
     /**

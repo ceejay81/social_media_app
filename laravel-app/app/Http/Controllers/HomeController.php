@@ -11,7 +11,7 @@ class HomeController extends Controller
 {
     public function index()
     {
-        $posts = Post::with(['user', 'likes', 'comments'])
+        $posts = Post::with(['user', 'reactions', 'comments'])
             ->latest()
             ->paginate(10);
 

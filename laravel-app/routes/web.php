@@ -14,8 +14,8 @@ use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\CommentController;
 use App\Http\Controllers\ReactionController;
 use App\Http\Controllers\ShareController;
-use App\Http\Controllers\LikeController;
 use App\Http\Controllers\FriendshipController;
+use App\Events\NewNotification;
 
 use Illuminate\Support\Facades\Route;
 use App\Models\Post;
@@ -47,6 +47,7 @@ Route::middleware(['auth'])->group(function () {
     // Notifications
     Route::get('/notifications', [NotificationController::class, 'index'])->name('notifications.index');
     Route::post('/notifications/{id}/read', [NotificationController::class, 'markAsRead'])->name('notifications.markAsRead');
+    Route::post('/notifications/store', [NotificationController::class, 'apiStore'])->name('notifications.store');
 
     // Create Post
     Route::get('/posts/create', [PostController::class, 'create'])->name('posts.create');
@@ -82,22 +83,20 @@ Route::middleware(['auth'])->group(function () {
     // Sharing posts
     Route::post('/posts/{post}/share', [ShareController::class, 'share'])->name('posts.share');
 
-    // Like functionality
-    Route::post('/posts/{post}/like', [LikeController::class, 'like'])->name('posts.like');
-
     // Delete Post
     Route::delete('/posts/{post}', [PostController::class, 'destroy'])->name('posts.destroy');
 
     // Friendship routes
     Route::get('/friends', [FriendshipController::class, 'index'])->name('friends.index');
     Route::post('/friends/send-request', [FriendshipController::class, 'sendRequest'])->name('friends.sendRequest');
-    Route::post('/friends/cancel-request', [FriendshipController::class, 'cancelRequest'])->name('friends.cancelRequest');
     Route::post('/friends/accept-request', [FriendshipController::class, 'acceptRequest'])->name('friends.acceptRequest');
     Route::post('/friends/decline-request', [FriendshipController::class, 'declineRequest'])->name('friends.declineRequest');
+    Route::post('/friends/cancel-request', [FriendshipController::class, 'cancelRequest'])->name('friends.cancelRequest');
     Route::get('/friends/search', [FriendshipController::class, 'search'])->name('friends.search');
 
     // Show individual posts
     Route::get('/posts/{post}', [PostController::class, 'show'])->name('posts.show');
 });
+
 
 require __DIR__.'/auth.php';

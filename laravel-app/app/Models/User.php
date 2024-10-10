@@ -128,4 +128,9 @@ class User extends Authenticatable
                     ->wherePivot('accepted', false)
                     ->select('users.*');
     }
+
+    public function reactions()
+    {
+        return $this->hasMany(Reaction::class);
+    }
 }

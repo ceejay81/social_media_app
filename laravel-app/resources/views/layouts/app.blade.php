@@ -83,6 +83,14 @@
     
     <!-- CSRF Token -->
     <meta name="csrf-token" content="{{ csrf_token() }}">
+
+    @auth
+    <meta name="user-id" content="{{ Auth::id() }}">
+    @endauth
+
+    <script>
+        window.userId = {{ auth()->id() }};
+    </script>
 </head>
 
 <body class="bg-gray-100">
@@ -106,6 +114,57 @@
         document.addEventListener('DOMContentLoaded', function () {
             // Initialization code here
         });
+    </script>
+
+    <!-- Pusher Script -->
+    <script src="https://js.pusher.com/8.2.0/pusher.min.js"></script>
+    <script>
+        // Enable pusher logging - don't include this in production
+        Pusher.logToConsole = true;
+
+        var pusher = new Pusher('{{ env('PUSHER_APP_KEY') }}', {
+            cluster: '{{ env('PUSHER_APP_CLUSTER') }}'
+        });
+
+        var channel = pusher.subscribe('notifications.{{ auth()->id() }}');
+        channel.bind('new.notification', function(data) {
+            // Handle the new notification
+            console.log('New notification:', data);
+            // Add the new notification to the UI
+            addNotificationToUI(data);
+            
+            // Show a toast notification
+            showToastNotification(data.message);
+        });
+
+        function addNotificationToUI(data) {
+            const container = document.getElementById('notifications-container');
+            if (!container) return;
+
+            const notificationElement = document.createElement('div');
+            notificationElement.className = 'notification-item p-2 border-b';
+            notificationElement.innerHTML = `
+                <p><strong>${data.user_name}</strong> ${data.action} ${data.reaction}</p>
+                <small>${new Date().toLocaleTimeString()}</small>
+            `;
+
+            container.prepend(notificationElement);
+        }
+
+        function showToastNotification(message) {
+            // Create toast element
+            const toast = document.createElement('div');
+            toast.className = 'fixed bottom-4 right-4 bg-blue-500 text-white p-2 rounded shadow-lg';
+            toast.textContent = message;
+
+            // Add to body
+            document.body.appendChild(toast);
+
+            // Remove after 3 seconds
+            setTimeout(() => {
+                toast.remove();
+            }, 3000);
+        }
     </script>
 
     @yield('scripts')

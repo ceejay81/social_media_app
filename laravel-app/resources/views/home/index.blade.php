@@ -882,4 +882,23 @@ document.addEventListener('submit', function(e) {
         submitReplyForm(e.target);
     }
 });
+
+document.addEventListener('DOMContentLoaded', () => {
+    console.log('Echo initialized:', window.Echo);
+    
+    if (window.Echo) {
+        window.Echo.private(`notifications.${window.userId}`)
+            .listen('.new.notification', (notification) => {
+                console.log('New notification received:', notification);
+                if (notification.type === 'new_reaction') {
+                    const notificationsContainer = document.getElementById('notifications-container');
+                    const notificationElement = document.createElement('div');
+                    notificationElement.textContent = `${notification.data.user_name} ${notification.data.action} with ${notification.data.reaction}`;
+                    notificationsContainer.prepend(notificationElement);
+                }
+            });
+    } else {
+        console.error('Echo is not defined. Make sure Laravel Echo is properly initialized.');
+    }
+});
 </script>

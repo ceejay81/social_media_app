@@ -22,6 +22,20 @@
                             @else
                                 {{ $notification->data['message'] ?? 'New activity on your post' }}
                             @endif
+                        @elseif($notification->type === 'friend_request')
+                            @if(isset($notification->data['username']))
+                                <a href="{{ route('profile.show', $notification->data['user_id']) }}" class="font-semibold hover:underline">{{ $notification->data['username'] }}</a> sent you a friend request.
+                            @else
+                                {{ $notification->data['message'] ?? 'You have a new friend request' }}
+                            @endif
+                        @elseif($notification->type === 'new_reaction')
+                            @if(isset($notification->data['user_id']) && isset($notification->data['user_name']))
+                                <a href="{{ route('profile.show', $notification->data['user_id']) }}" class="font-semibold hover:underline">{{ $notification->data['user_name'] }}</a> 
+                                {{ $notification->data['action'] ?? 'reacted to your post' }}
+                                with {{ $notification->data['reaction'] ?? 'a reaction' }}
+                            @else
+                                {{ $notification->data['message'] ?? 'Someone reacted to your post' }}
+                            @endif
                         @else
                             {{ $notification->data['message'] ?? 'You have a new notification' }}
                         @endif
