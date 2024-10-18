@@ -344,8 +344,13 @@ document.addEventListener('DOMContentLoaded', function() {
     document.querySelectorAll('.comment-form').forEach(form => {
         form.addEventListener('submit', function(e) {
             e.preventDefault();
-            const postId = this.closest('.post').dataset.postId;
-            submitComment(postId, this);
+            const contentInput = this.querySelector('input[name="content"]');
+            if (contentInput && contentInput.value.trim()) {
+                const postId = this.closest('.post').dataset.postId;
+                submitComment(postId, this);
+            } else {
+                console.error('Comment content is empty or input not found');
+            }
         });
     });
 
@@ -374,62 +379,58 @@ document.addEventListener('DOMContentLoaded', function() {
     const cancelMediaUploadBtn = document.getElementById('cancelMediaUpload');
     const closeMediaPreviewModalBtn = document.getElementById('closeMediaPreviewModal');
 
-    mediaInput.addEventListener('change', function(e) {
-        const file = e.target.files[0];
-        if (file) {
-            const reader = new FileReader();
-            reader.onload = function(e) {
-                let previewContent;
-                if (file.type.startsWith('image/')) {
-                    previewContent = `<img src="${e.target.result}" alt="Preview" class="max-w-full max-h-64 object-contain rounded-lg">`;
-                } else if (file.type.startsWith('video/')) {
-                    previewContent = `<video src="${e.target.result}" controls class="max-w-full max-h-64 rounded-lg"></video>`;
+    if (mediaInput) {
+        mediaInput.addEventListener('change', function(e) {
+            const file = e.target.files[0];
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    let previewContent;
+                    if (file.type.startsWith('image/')) {
+                        previewContent = `<img src="${e.target.result}" alt="Preview" class="max-w-full max-h-64 object-contain rounded-lg">`;
+                    } else if (file.type.startsWith('video/')) {
+                        previewContent = `<video src="${e.target.result}" controls class="max-w-full max-h-64 rounded-lg"></video>`;
+                    }
+                    mediaPreviewContainer.innerHTML = previewContent;
+                    mediaPreviewModal.classList.remove('hidden');
                 }
-                mediaPreviewContainer.innerHTML = previewContent;
-                mediaPreviewModal.classList.remove('hidden');
+                reader.readAsDataURL(file);
             }
-            reader.readAsDataURL(file);
-        }
-    });
+        });
+    }
 
-    confirmMediaUploadBtn.addEventListener('click', function() {
-        const previewContent = mediaPreviewContainer.innerHTML;
-        mediaPreview.innerHTML = previewContent;
-        mediaPreview.classList.remove('hidden');
-        closeMediaPreviewModal();
-    });
+    if (confirmMediaUploadBtn) {
+        confirmMediaUploadBtn.addEventListener('click', function() {
+            const previewContent = mediaPreviewContainer.innerHTML;
+            mediaPreview.innerHTML = previewContent;
+            mediaPreview.classList.remove('hidden');
+            closeMediaPreviewModal();
+        });
+    }
 
-    cancelMediaUploadBtn.addEventListener('click', function() {
-        mediaInput.value = '';
-        closeMediaPreviewModal();
-    });
+    if (cancelMediaUploadBtn) {
+        cancelMediaUploadBtn.addEventListener('click', function() {
+            mediaInput.value = '';
+            closeMediaPreviewModal();
+        });
+    }
 
-    closeMediaPreviewModalBtn.addEventListener('click', closeMediaPreviewModal);
+    if (closeMediaPreviewModalBtn) {
+        closeMediaPreviewModalBtn.addEventListener('click', closeMediaPreviewModal);
+    }
 
     function closeMediaPreviewModal() {
         mediaPreviewModal.classList.add('hidden');
         mediaPreviewContainer.innerHTML = '';
     }
 
-    createPostForm.addEventListener('submit', function(e) {
-        e.preventDefault();
-        // You can add additional logic here if needed before submitting the form
-        this.submit();
-    });
-
-    // Function to remove the media preview
-    function removeMediaPreview() {
-        mediaPreview.innerHTML = '';
-        mediaPreview.classList.add('hidden');
-        mediaInput.value = ''; // Clear the file input
+    if (createPostForm) {
+        createPostForm.addEventListener('submit', function(e) {
+            e.preventDefault();
+            // You can add additional logic here if needed before submitting the form
+            this.submit();
+        });
     }
-
-    // Add a remove button to the media preview
-    mediaPreview.addEventListener('click', function(e) {
-        if (e.target.classList.contains('remove-media')) {
-            removeMediaPreview();
-        }
-    });
 
     // Post options menu toggle
     document.querySelectorAll('.post-options-toggle').forEach(btn => {
@@ -455,73 +456,6 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     });
 
-    // Reaction functionality
-    document.querySelectorAll('.react-button').forEach(button => {
-        button.addEventListener('click', function () {
-            let postId = this.dataset.postId;
-            let reaction = this.dataset.reaction;
-            let token = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
-
-            fetch(`/posts/${postId}/react`, {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'X-CSRF-TOKEN': token
-                },
-                body: JSON.stringify({
-                    reaction: reaction
-                })
-            })
-            .then(response => response.json())
-            .then(data => {
-                if (data.success) {
-                    // Update the reaction count or icon
-                    let reactionCount = document.querySelector(`#reaction-count-${postId}`);
-                    reactionCount.innerText = data.reactionCount;
-                } else {
-                    console.log('Failed to react:', data.message);
-                }
-            })
-            .catch(error => {
-                console.error('Error:', error);
-            });
-        });
-    });
-
-    // Comment functionality
-    document.querySelectorAll('.comment-form').forEach(form => {
-        form.addEventListener('submit', function (e) {
-            e.preventDefault();
-            let postId = this.dataset.postId;
-            let token = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
-            let commentContent = this.querySelector('.comment-content').value;
-
-            fetch(`/posts/${postId}/comments`, {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'X-CSRF-TOKEN': token
-                },
-                body: JSON.stringify({
-                    content: commentContent
-                })
-            })
-            .then(response => response.json())
-            .then(data => {
-                if (data.success) {
-                    // Append new comment to the comment list
-                    let commentList = document.querySelector(`#comments-list-${postId}`);
-                    commentList.innerHTML += `<li>${data.comment.content} <button data-comment-id="${data.comment.id}" class="edit-comment">Edit</button><button data-comment-id="${data.comment.id}" class="delete-comment">Delete</button></li>`;
-                } else {
-                    console.log('Failed to post comment:', data.message);
-                }
-            })
-            .catch(error => {
-                console.error('Error:', error);
-            });
-        });
-    });
-
     // Add event delegation for reply, edit, and delete buttons
     document.addEventListener('click', function(e) {
         if (e.target.classList.contains('reply-comment')) {
@@ -530,6 +464,17 @@ document.addEventListener('DOMContentLoaded', function() {
             handleEditComment(e.target);
         } else if (e.target.classList.contains('delete-comment')) {
             handleDeleteComment(e.target);
+        }
+    });
+
+    // Add this new event listener for form submissions
+    document.addEventListener('submit', function(e) {
+        if (e.target.classList.contains('edit-form')) {
+            e.preventDefault();
+            submitEditForm(e.target);
+        } else if (e.target.classList.contains('reply-form')) {
+            e.preventDefault();
+            submitReplyForm(e.target);
         }
     });
 });
@@ -798,9 +743,9 @@ function handleDeleteComment(button) {
 function submitReplyForm(form) {
     const formData = new FormData(form);
     const postId = form.closest('.post').dataset.postId;
-    const commentId = form.querySelector('input[name="parent_id"]').value;
+    const parentCommentId = form.querySelector('input[name="parent_id"]').value;
 
-    fetch(`/posts/${postId}/comments/${commentId}/reply`, {
+    fetch(`/posts/${postId}/comments`, {
         method: 'POST',
         headers: {
             'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
@@ -872,16 +817,6 @@ function submitEditForm(form) {
         alert('An error occurred while updating the comment. Please try again.');
     });
 }
-
-document.addEventListener('submit', function(e) {
-    if (e.target.classList.contains('edit-form')) {
-        e.preventDefault();
-        submitEditForm(e.target);
-    } else if (e.target.classList.contains('reply-form')) {
-        e.preventDefault();
-        submitReplyForm(e.target);
-    }
-});
 
 document.addEventListener('DOMContentLoaded', () => {
     console.log('Echo initialized:', window.Echo);

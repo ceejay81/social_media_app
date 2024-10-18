@@ -4,74 +4,35 @@
         <ul class="space-y-2">
             <!-- Profile Section -->
             <li>
-                @php
-                    $userId = Auth::id(); // Use the authenticated user's ID
-                @endphp
-                <a href="{{ route('profile.show', ['user' => $userId]) }}" class="flex items-center px-1 pt-1 text-sm font-medium leading-5 text-white hover:bg-blue-600 rounded-lg transition duration-150 ease-in-out">
-                    <i class="fas fa-user mr-3"></i>
+                <a href="{{ route('profile.show', Auth::user()) }}" class="flex items-center px-4 py-2 text-sm font-medium leading-5 text-white hover:bg-blue-600 rounded-lg transition duration-150 ease-in-out">
+                    <i class="fas fa-user text-xl mr-3"></i>
                     <span>Profile</span>
                 </a>
             </li>
 
             <!-- Navigation Section -->
             <li>
-                <a href="{{ route('home') }}" class="flex items-center px-1 pt-1 text-sm font-medium leading-5 text-white hover:bg-blue-600 rounded-lg transition duration-150 ease-in-out">
-                    <i class="fas fa-home mr-3"></i>
-                    <span>Home Feed</span>
+                <a href="{{ route('home') }}" class="flex items-center px-4 py-2 text-sm font-medium leading-5 text-white hover:bg-blue-600 rounded-lg transition duration-150 ease-in-out">
+                    <i class="fas fa-home text-xl mr-3"></i>
+                    <span>Home</span>
                 </a>
             </li>
             <li>
-                <a href="{{ route('messages') }}" class="flex items-center px-1 pt-1 text-sm font-medium leading-5 text-white hover:bg-blue-600 rounded-lg transition duration-150 ease-in-out">
-                    <i class="fab fa-facebook-messenger mr-3"></i>
+                <a href="{{ route('friends.index') }}" class="flex items-center px-4 py-2 text-sm font-medium leading-5 text-white hover:bg-blue-600 rounded-lg transition duration-150 ease-in-out">
+                    <i class="fas fa-user-friends text-xl mr-3"></i>
+                    <span>Friends</span>
+                </a>
+            </li>
+            <li>
+                <a href="{{ route('messages.index') }}" class="flex items-center px-4 py-2 text-sm font-medium leading-5 text-white hover:bg-blue-600 rounded-lg transition duration-150 ease-in-out">
+                    <i class="fab fa-facebook-messenger text-xl mr-3"></i>
                     <span>Messages</span>
                 </a>
             </li>
             <li>
-                <a href="{{ route('notifications.index') }}" class="flex items-center px-1 pt-1 text-sm font-medium leading-5 text-white hover:bg-blue-600 rounded-lg transition duration-150 ease-in-out">
-                    <i class="fas fa-bell mr-3"></i>
+                <a href="{{ route('notifications.index') }}" class="flex items-center px-4 py-2 text-sm font-medium leading-5 text-white hover:bg-blue-600 rounded-lg transition duration-150 ease-in-out">
+                    <i class="fas fa-bell text-xl mr-3"></i>
                     <span>Notifications</span>
-                </a>
-            </li>
-
-            <!-- Content Management Section -->
-            <li>
-                <a href="{{ route('posts.create') }}" class="flex items-center px-1 pt-1 text-sm font-medium leading-5 text-white hover:bg-blue-600 rounded-lg transition duration-150 ease-in-out">
-                    <i class="fas fa-plus mr-3"></i>
-                    <span>Create Post</span>
-                </a>
-            </li>
-            <li>
-                <a href="{{ route('posts.saved') }}" class="flex items-center px-1 pt-1 text-sm font-medium leading-5 text-white hover:bg-blue-600 rounded-lg transition duration-150 ease-in-out">
-                    <i class="fas fa-bookmark mr-3"></i>
-                    <span>Saved Posts</span>
-                </a>
-            </li>
-
-            <!-- Explore Section -->
-            <li>
-                <a href="{{ route('explore') }}" class="flex items-center px-1 pt-1 text-sm font-medium leading-5 text-white hover:bg-blue-600 rounded-lg transition duration-150 ease-in-out">
-                    <i class="fas fa-compass mr-3"></i>
-                    <span>Explore</span>
-                </a>
-            </li>
-            <li>
-                <a href="{{ route('trending') }}" class="flex items-center px-1 pt-1 text-sm font-medium leading-5 text-white hover:bg-blue-600 rounded-lg transition duration-150 ease-in-out">
-                    <i class="fas fa-chart-line mr-3"></i>
-                    <span>Trending</span>
-                </a>
-            </li>
-
-            <!-- Help and Support Section -->
-            <li>
-                <a href="{{ route('help') }}" class="flex items-center px-1 pt-1 text-sm font-medium leading-5 text-white hover:bg-blue-600 rounded-lg transition duration-150 ease-in-out">
-                    <i class="fas fa-question-circle mr-3"></i>
-                    <span>Help Center</span>
-                </a>
-            </li>
-            <li>
-                <a href="{{ route('feedback') }}" class="flex items-center px-1 pt-1 text-sm font-medium leading-5 text-white hover:bg-blue-600 rounded-lg transition duration-150 ease-in-out">
-                    <i class="fas fa-comment-alt mr-3"></i>
-                    <span>Feedback</span>
                 </a>
             </li>
 

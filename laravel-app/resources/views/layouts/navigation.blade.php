@@ -52,11 +52,12 @@
                 <button class="bg-gray-200 p-2 rounded-full text-gray-600 hover:bg-gray-300 focus:outline-none focus:ring-2 focus:ring-white mr-2">
                     <i class="fas fa-plus"></i>
                 </button>
-                <button class="bg-gray-200 p-2 rounded-full text-gray-600 hover:bg-gray-300 focus:outline-none focus:ring-2 focus:ring-white mr-2">
+                <a href="{{ route('messages.index') }}" class="bg-gray-200 p-2 rounded-full text-gray-600 hover:bg-gray-300 focus:outline-none focus:ring-2 focus:ring-white mr-2">
                     <i class="fab fa-facebook-messenger"></i>
-                </button>
-                <button class="bg-gray-200 p-2 rounded-full text-gray-600 hover:bg-gray-300 focus:outline-none focus:ring-2 focus:ring-white mr-2">
+                </a>
+                <a href="{{ route('notifications.index') }}" class="bg-gray-200 p-2 rounded-full text-gray-600 hover:bg-gray-300 focus:outline-none focus:ring-2 focus:ring-white mr-2">
                     <i class="fas fa-bell"></i>
+                </a>
                 </button>
 
                 <!-- Settings Dropdown -->

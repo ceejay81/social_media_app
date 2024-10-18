@@ -58,6 +58,7 @@ class ReactionController extends Controller
             ]);
         } catch (\Exception $e) {
             \Log::error('Error in ReactionController@react: ' . $e->getMessage());
+            \Log::error($e->getTraceAsString());
             return response()->json([
                 'success' => false,
                 'message' => 'An error occurred while processing your request.',

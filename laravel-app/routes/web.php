@@ -42,7 +42,11 @@ Route::middleware(['auth'])->group(function () {
     Route::get('/home', [HomeController::class, 'index'])->name('home');
 
     // Messages
-    Route::get('/messages', [MessageController::class, 'index'])->name('messages');
+    Route::get('/messages', [MessageController::class, 'index'])->name('messages.index');
+    Route::get('/messages/{conversation}', [MessageController::class, 'show'])->name('messages.show');
+    Route::post('/messages', [MessageController::class, 'store'])->name('messages.store');
+    Route::post('/messages/create', [MessageController::class, 'create'])->name('messages.create');
+    Route::post('/messages/typing', [MessageController::class, 'typing'])->name('messages.typing');
 
     // Notifications
     Route::get('/notifications', [NotificationController::class, 'index'])->name('notifications.index');
@@ -100,3 +104,5 @@ Route::middleware(['auth'])->group(function () {
 
 
 require __DIR__.'/auth.php';
+
+

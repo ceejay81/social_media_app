@@ -133,4 +133,35 @@ class User extends Authenticatable
     {
         return $this->hasMany(Reaction::class);
     }
+
+    public function getConversations()
+    {
+        $sentMessages = $this->sentMessages()
+            ->select('receiver_id as user_id')
+            ->selectRaw('MAX(created_at) as last_message_at')
+            ->groupBy('receiver_id');
+
+        $receivedMessages = $this->receivedMessages()
+            ->select('sender_id as user_id')
+            ->selectRaw('MAX(created_at) as last_message_at')
+            ->groupBy('sender_id');
+
+        $conversations = $sentMessages->union($receivedMessages)
+            ->orderBy('last_message_at', 'desc')
+            ->get();
+
+        return User::whereIn('id', $conversations->pluck('user_id'))
+            ->withCount(['sentMessages', 'receivedMessages'])
+            ->get();
+    }
+
+    public function sentMessages()
+    {
+        return $this->hasMany(Message::class, 'sender_id');
+    }
+
+    public function receivedMessages()
+    {
+        return $this->hasMany(Message::class, 'receiver_id');
+    }
 }
