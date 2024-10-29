@@ -1,49 +1,119 @@
 @extends('layouts.app')
 
 @section('content')
-<div class="container mx-auto px-4 py-8">
-    <div class="flex flex-col md:flex-row gap-4">
-        <div class="w-full md:w-1/3 bg-white rounded-lg shadow">
-            <div class="p-4">
-                <h2 class="text-xl font-semibold mb-4">Conversations</h2>
+<div class="h-screen bg-gray-100">
+    <div class="flex h-[calc(100vh-4rem)]">
+        <!-- Left Sidebar - Conversations List -->
+        <div class="w-80 bg-white border-r flex flex-col">
+            <!-- Search Bar -->
+            <div class="p-4 border-b">
+                <div class="relative">
+                    <input type="text" 
+                           placeholder="Search messages" 
+                           class="w-full pl-10 pr-4 py-2 rounded-full bg-gray-100 focus:outline-none focus:ring-2 focus:ring-blue-500">
+                    <i class="fas fa-search absolute left-4 top-3 text-gray-400"></i>
+                </div>
+            </div>
+            
+            <!-- Conversations List -->
+            <div class="flex-1 overflow-y-auto">
                 @include('messages.conversation_list', ['conversations' => $conversations])
             </div>
         </div>
-        <div class="w-full md:w-2/3 bg-white rounded-lg shadow">
-            <div class="flex flex-col h-[calc(100vh-12rem)]">
-                <div class="p-4 border-b">
-                    <h2 class="text-xl font-semibold">{{ $otherUser->name }}</h2>
+
+        <!-- Main Chat Area -->
+        <div class="flex-1 flex flex-col bg-white">
+            <!-- Chat Header -->
+            <div class="flex items-center justify-between px-6 py-3 border-b bg-white">
+                <div class="flex items-center space-x-4">
+                    <img src="{{ $otherUser->profile_picture_url ? asset('storage/' . $otherUser->profile_picture_url) : asset('images/default-avatar.jpg') }}" 
+                         class="w-10 h-10 rounded-full object-cover">
+                    <div>
+                        <h2 class="font-semibold">{{ $otherUser->name }}</h2>
+                        <p class="text-sm text-gray-500">
+                            @if($otherUser->last_active_at)
+                                {{ $otherUser->last_active_at->diffForHumans() }}
+                            @endif
+                        </p>
+                    </div>
                 </div>
-                <div id="messages-container" class="flex-grow overflow-y-auto p-4">
+                <div class="flex items-center space-x-4">
+                    <button class="p-2 hover:bg-gray-100 rounded-full">
+                        <i class="fas fa-phone"></i>
+                    </button>
+                    <button class="p-2 hover:bg-gray-100 rounded-full">
+                        <i class="fas fa-video"></i>
+                    </button>
+                    <button class="p-2 hover:bg-gray-100 rounded-full">
+                        <i class="fas fa-info-circle"></i>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Messages Area -->
+            <div id="messages-container" class="flex-1 overflow-y-auto p-4 bg-gray-50">
+                <div class="max-w-3xl mx-auto space-y-4">
                     @foreach($messages as $message)
                         @include('messages.message', ['message' => $message])
                     @endforeach
                 </div>
-                <div id="typing-indicator" class="text-sm text-gray-500 px-4 py-2 hidden">
-                    {{ $otherUser->name }} is typing...
-                </div>
-                <form id="message-form" class="p-4 border-t" enctype="multipart/form-data">
+            </div>
+
+            <!-- Typing Indicator -->
+            <div id="typing-indicator" class="px-6 py-2 text-sm text-gray-500 hidden">
+                {{ $otherUser->name }} is typing...
+            </div>
+
+            <!-- Message Input Area -->
+            <div class="p-4 border-t bg-white">
+                <form id="message-form" class="space-y-3">
                     @csrf
                     <input type="hidden" name="conversation_id" value="{{ $conversation->id }}">
-                    <div class="flex flex-col space-y-2">
-                        <div id="image-preview" class="hidden mb-2">
-                            <img src="" alt="Preview" class="max-w-xs max-h-32 rounded">
-                            <button type="button" id="remove-image" class="text-red-500 text-sm mt-1">Remove image</button>
+                    
+                    <!-- Message Tools -->
+                    <div class="flex items-center space-x-3 px-3">
+                        <button type="button" class="text-gray-500 hover:text-gray-700 transition-colors">
+                            <i class="fas fa-smile text-xl"></i>
+                        </button>
+                        <label class="text-gray-500 hover:text-gray-700 cursor-pointer transition-colors">
+                            <i class="fas fa-image text-xl"></i>
+                            <input type="file" name="image" id="image-upload" class="hidden" accept="image/*">
+                        </label>
+                        <button type="button" class="text-gray-500 hover:text-gray-700 transition-colors">
+                            <i class="fas fa-paperclip text-xl"></i>
+                        </button>
+                    </div>
+
+                    <!-- Input Container -->
+                    <div class="flex items-end space-x-2">
+                        <div class="flex-1 bg-gray-50 rounded-2xl">
+                            <!-- Image Preview -->
+                            <div id="image-preview" class="hidden p-3 border-b">
+                                <div class="relative inline-block group">
+                                    <img src="" alt="Preview" class="max-h-32 rounded-lg">
+                                    <button type="button" id="remove-image" 
+                                            class="absolute top-1 right-1 bg-gray-900/70 text-white p-1.5 rounded-full 
+                                                   opacity-0 group-hover:opacity-100 transition-opacity">
+                                        <i class="fas fa-times"></i>
+                                    </button>
+                                </div>
+                            </div>
+                            
+                            <!-- Text Input -->
+                            <div class="p-3">
+                                <textarea name="content" 
+                                        rows="1" 
+                                        class="w-full bg-transparent border-0 focus:ring-0 resize-none max-h-32"
+                                        placeholder="Type a message..."
+                                        style="min-height: 24px"></textarea>
+                            </div>
                         </div>
-                        <div class="flex items-center space-x-2">
-                            <input type="text" name="content" class="flex-grow border rounded-full px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500" placeholder="Type your message...">
-                            <label for="image-upload" class="cursor-pointer text-blue-500 hover:text-blue-600 flex items-center justify-center w-10 h-10 bg-gray-100 rounded-full transition duration-300 ease-in-out hover:bg-gray-200">
-                                <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
-                                </svg>
-                            </label>
-                            <input id="image-upload" type="file" name="image" class="hidden" accept="image/*">
-                            <button type="submit" class="bg-blue-500 text-white rounded-full p-2 hover:bg-blue-600 transition duration-300 ease-in-out">
-                                <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8" />
-                                </svg>
-                            </button>
-                        </div>
+                        
+                        <button type="submit" 
+                                class="p-3 bg-blue-500 text-white rounded-full hover:bg-blue-600 
+                                       disabled:opacity-50 disabled:cursor-not-allowed transition-colors">
+                            <i class="fas fa-paper-plane"></i>
+                        </button>
                     </div>
                 </form>
             </div>
@@ -65,19 +135,40 @@
     messageForm.addEventListener('submit', async (e) => {
         e.preventDefault();
         const formData = new FormData(messageForm);
-        const response = await fetch('{{ route('messages.store') }}', {
-            method: 'POST',
-            body: formData,
-            headers: {
-                'X-CSRF-TOKEN': '{{ csrf_token() }}',
-                'Accept': 'application/json',
-            },
-        });
-        const message = await response.json();
-        addMessageToUI(message);
-        messageForm.reset();
-        imagePreview.classList.add('hidden');
-        imagePreview.querySelector('img').src = '';
+        const submitButton = messageForm.querySelector('button[type="submit"]');
+        const loadingIndicator = document.getElementById('image-upload-loading');
+
+        submitButton.disabled = true;
+        if (formData.get('image').size > 0) {
+            loadingIndicator.classList.remove('hidden');
+        }
+
+        try {
+            const response = await fetch('{{ route('messages.store') }}', {
+                method: 'POST',
+                body: formData,
+                headers: {
+                    'X-CSRF-TOKEN': '{{ csrf_token() }}',
+                    'Accept': 'application/json',
+                },
+            });
+
+            if (!response.ok) {
+                throw new Error('Network response was not ok');
+            }
+
+            const message = await response.json();
+            addMessageToUI(message);
+            messageForm.reset();
+            imagePreview.classList.add('hidden');
+            imagePreview.querySelector('img').src = '';
+        } catch (error) {
+            console.error('Error:', error);
+            alert('An error occurred while sending the message. Please try again.');
+        } finally {
+            submitButton.disabled = false;
+            loadingIndicator.classList.add('hidden');
+        }
     });
 
     function addMessageToUI(message) {
@@ -102,7 +193,7 @@
         messagesContainer.scrollTop = messagesContainer.scrollHeight;
     }
 
-    messageForm.querySelector('input[name="content"]').addEventListener('input', () => {
+    messageForm.querySelector('textarea[name="content"]').addEventListener('input', () => {
         clearTimeout(typingTimer);
         typingTimer = setTimeout(() => {
             fetch('{{ route('messages.typing') }}', {
@@ -119,6 +210,12 @@
     imageUpload.addEventListener('change', (e) => {
         const file = e.target.files[0];
         if (file) {
+            if (file.size > 5 * 1024 * 1024) { // 5MB
+                alert('File size exceeds 5MB. Please choose a smaller image.');
+                imageUpload.value = '';
+                return;
+            }
+
             const reader = new FileReader();
             reader.onload = (e) => {
                 imagePreview.classList.remove('hidden');

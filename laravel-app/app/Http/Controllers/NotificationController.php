@@ -80,4 +80,22 @@ class NotificationController extends Controller
             ]);
         }
     }
+
+    public function getUnreadCount()
+    {
+        return auth()->user()->unreadNotifications()->count();
+    }
+
+    public function markAllAsRead()
+    {
+        auth()->user()->unreadNotifications->markAsRead();
+        return response()->json(['success' => true]);
+    }
+
+    public function delete($id)
+    {
+        $notification = auth()->user()->notifications()->findOrFail($id);
+        $notification->delete();
+        return response()->json(['success' => true]);
+    }
 }

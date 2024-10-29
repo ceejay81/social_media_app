@@ -11,6 +11,8 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Log;
+use Intervention\Image\Facades\Image;
+use Illuminate\Support\Str;
 
 class MessageController extends Controller
 {
@@ -64,7 +66,7 @@ class MessageController extends Controller
             $request->validate([
                 'conversation_id' => 'required|exists:conversations,id',
                 'content' => 'required_without:image|string|nullable',
-                'image' => 'image|mimes:jpeg,png,jpg,gif|max:nullable',
+                'image' => 'image|mimes:jpeg,png,jpg,gif,webp,svg|max:10240', // Max 10MB
             ]);
 
             $message = new Message([
@@ -74,7 +76,19 @@ class MessageController extends Controller
             ]);
 
             if ($request->hasFile('image')) {
-                $path = $request->file('image')->store('message_images', 'public');
+                $image = $request->file('image');
+                $filename = Str::random(20) . '.' . $image->getClientOriginalExtension();
+                
+                // Resize and compress the image
+                $img = Image::make($image->getRealPath());
+                $img->resize(800, null, function ($constraint) {
+                    $constraint->aspectRatio();
+                    $constraint->upsize();
+                });
+                
+                $path = 'message_images/' . $filename;
+                Storage::disk('public')->put($path, $img->encode('jpg', 80));
+                
                 $message->image_url = Storage::url($path);
             }
 
@@ -124,5 +138,21 @@ class MessageController extends Controller
         broadcast(new UserTypingEvent(Auth::user(), $request->conversation_id))->toOthers();
 
         return response()->json(['success' => true]);
+    }
+
+    public function search(Request $request)
+    {
+        $query = $request->input('query');
+        
+        $messages = Message::whereHas('conversation', function ($q) {
+            $q->where('user_id', Auth::id())
+              ->orWhere('other_user_id', Auth::id());
+        })
+        ->where('content', 'LIKE', "%{$query}%")
+        ->with(['conversation.user', 'conversation.otherUser', 'sender'])
+        ->orderBy('created_at', 'desc')
+        ->paginate(20);
+        
+        return response()->json($messages);
     }
 }

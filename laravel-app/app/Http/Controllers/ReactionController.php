@@ -77,8 +77,10 @@ class ReactionController extends Controller
                 [
                     'message' => $user->name . ' reacted to your post with ' . $reaction,
                     'post_id' => $post->id,
-                    'user_id' => $user->id,
-                    'user_name' => $user->name,
+                    'reactor_id' => $user->id,
+                    'reactor_name' => $user->name,
+                    'post_creator_id' => $post->user_id,
+                    'post_creator_name' => $post->user->name,
                     'action' => 'reacted to your post',
                     'reaction' => $reaction
                 ]

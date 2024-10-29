@@ -9,9 +9,15 @@ class Message extends Model
 {
     use HasFactory;
 
-    protected $fillable = ['conversation_id', 'sender_id', 'content', 'image_url'];
+    protected $fillable = ['conversation_id', 'sender_id', 'content', 'image_url', 'delivered', 'read_at', 'delivered_at'];
 
     protected $appends = ['is_sender'];
+
+    protected $casts = [
+        'read_at' => 'datetime',
+        'delivered_at' => 'datetime',
+        'delivered' => 'boolean'
+    ];
 
     public function conversation()
     {

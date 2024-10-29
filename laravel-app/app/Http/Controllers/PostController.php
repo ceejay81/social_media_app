@@ -31,7 +31,7 @@ class PostController extends Controller
     {
         $request->validate([
             'content' => 'required|string|max:1000',
-            'media' => 'nullable|file|mimes:jpeg,png,jpg,gif,mp4,mov,avi|max:102400', // 100MB max
+            'media' => 'nullable|file|mimes:jpeg,png,jpg,gif,webp,svg,mp4,mov,avi|max:20480', // 20MB max
         ]);
 
         $post = new Post();
@@ -98,7 +98,7 @@ class PostController extends Controller
 
         $request->validate([
             'content' => 'required|string|max:1000',
-            'media' => 'nullable|file|mimes:jpeg,png,jpg,gif,mp4,mov,avi|max:102400', // 100MB max
+            'media' => 'nullable|file|mimes:jpeg,png,jpg,gif,webp,svg,mp4,mov,avi|max:20480', // 20MB max
         ]);
 
         $post->content = $request->input('content');

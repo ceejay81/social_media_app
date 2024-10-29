@@ -36,7 +36,7 @@
                             <div class="w-24 h-24 rounded-full overflow-hidden bg-gray-200">
                                 <img id="profile_picture_preview" src="{{ $user->profile_picture_url ? asset('storage/' . $user->profile_picture_url) : asset('images/default-avatar.jpg') }}" alt="Profile Picture" class="w-full h-full object-cover">
                             </div>
-                            <input type="file" id="profile_picture" name="profile_picture" class="hidden" accept="image/*" onchange="previewImage(this, 'profile_picture_preview')">
+                            <input type="file" id="profile_picture" name="profile_picture" class="hidden" accept="image/jpeg,image/png,image/jpg,image/gif,image/webp,image/svg+xml" onchange="previewImage(this, 'profile_picture_preview')">
                             <label for="profile_picture" class="bg-blue-500 text-white px-4 py-2 rounded-md hover:bg-blue-600 transition duration-300 ease-in-out cursor-pointer">Choose File</label>
                         </div>
                         @error('profile_picture')

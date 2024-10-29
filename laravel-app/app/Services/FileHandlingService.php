@@ -12,7 +12,7 @@ class FileHandlingService
     {
         $fileExtension = $file->getClientOriginalExtension();
         
-        if (in_array($fileExtension, ['jpeg', 'png', 'jpg', 'gif'])) {
+        if (in_array($fileExtension, ['jpeg', 'png', 'jpg', 'gif', 'webp', 'svg'])) {
             $path = $file->store('post-images', 'public');
             return ['type' => 'image', 'path' => $path];
         } elseif (in_array($fileExtension, ['mp4', 'mov', 'avi'])) {
